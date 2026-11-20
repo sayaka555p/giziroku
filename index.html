@@ -3,14 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>議事録ヒーロー</title>
+    <title>議事録ヒーロー (AI搭載版)</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/genai": "https://esm.run/@google/genai"
+        }
+      }
+    </script>
     <style>
         :root {
             --primary-color: #f59e0b; 
             --primary-hover: #d97706;
             --secondary-color: #3b82f6; 
             --secondary-hover: #2563eb;
-            /* 背景色を淡いライトブルーに変更 */
             --bg-color: #e0f2fe; 
             --card-bg: #ffffff;
             --text-main: #1e293b;
@@ -29,7 +35,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .header h1 {
@@ -53,7 +59,84 @@
             margin: 0;
         }
 
-        /* カラムレイアウトの整備 */
+        /* APIキー設定バー */
+        .api-bar {
+            max-width: 1400px;
+            margin: 0 auto 24px auto;
+            background-color: #ffffff;
+            border: 1px solid #bae6fd;
+            border-radius: 12px;
+            padding: 14px 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        }
+
+        .api-bar-label {
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .api-bar-controls {
+            display: flex;
+            flex-grow: 1;
+            max-width: 600px;
+            gap: 8px;
+        }
+
+        .api-bar-controls input {
+            flex-grow: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .api-bar-controls input:focus {
+            border-color: var(--secondary-color);
+        }
+
+        .btn-api-save {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-api-save:hover {
+            background-color: #0369a1;
+        }
+
+        .btn-api-clear {
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-api-clear:hover {
+            background-color: #e2e8f0;
+            color: #1e293b;
+        }
+
+        /* カラムレイアウト */
         .container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -85,7 +168,6 @@
             flex-direction: column;
         }
 
-        /* 伸縮させて高さを揃えるためのクラス */
         .flex-grow-card {
             flex-grow: 1;
         }
@@ -298,7 +380,7 @@
             border: 1px solid #e2e8f0;
             font-size: 0.95rem;
             display: none;
-            position: relative;
+            white-space: pre-wrap;
         }
         
         .qa-answer::before {
@@ -315,7 +397,7 @@
             margin-top: 50px;
         }
 
-        /* 追加: カスタム通知（Toast）のスタイル */
+        /* カスタム通知（Toast） */
         #toast-container {
             visibility: hidden;
             min-width: 250px;
@@ -323,16 +405,20 @@
             color: white;
             text-align: center;
             border-radius: 8px;
-            padding: 16px;
+            padding: 14px 20px;
             position: fixed;
             z-index: 1000;
             left: 50%;
             top: 20px;
             transform: translateX(-50%);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
             opacity: 0;
             transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
             font-weight: bold;
+        }
+
+        #toast-container.success {
+            background-color: #10b981;
         }
 
         #toast-container.show {
@@ -344,18 +430,26 @@
 </head>
 <body>
 
-    <!-- カスタム通知用コンテナ -->
     <div id="toast-container">メッセージ</div>
 
     <div class="header">
         <h1>議事録ヒーロー</h1>
-        <p>テキストを入力し、必要な項目を選ぶだけ。会議の疑問はAIアシスタントに直接質問できます。</p>
+        <p>テキストを入力し、必要な項目を選ぶだけ。AIが文章を読み取り、要約や質問に回答します。</p>
+    </div>
+
+    <!-- 安全にAPIキーを入力するバー -->
+    <div class="api-bar">
+        <div class="api-bar-label">🔑 Gemini APIキー設定 <span style="font-weight: normal; font-size: 0.8rem; color: #64748b;">（お使いのブラウザ内のみに保存されます）</span></div>
+        <div class="api-bar-controls">
+            <input type="password" id="api-key-input" placeholder="AIza... から始まるGemini APIキーを入力">
+            <button class="btn-api-save" id="save-api-btn">保存</button>
+            <button class="btn-api-clear" id="clear-api-btn">消去</button>
+        </div>
     </div>
 
     <div class="container">
         <!-- 左カラム：入力・設定エリア -->
         <div class="left-column">
-            
             <div class="card flex-grow-card">
                 <div class="card-header">📝 1. 会議の内容（文字起こし）を入力</div>
                 <textarea id="transcript-input" placeholder="ここに会議の文字起こしテキストやメモを貼り付けてください..."></textarea>
@@ -376,16 +470,14 @@
                     <div class="checkbox-wrapper"><input type="checkbox" id="opt-next" value="次回予定" checked><label for="opt-next">次回予定</label></div>
                 </div>
 
-                <button class="btn-main" id="generate-btn" onclick="generateMinutes()">
+                <button class="btn-main" id="generate-btn">
                     <span id="btn-text">🚀 議事録を作成する</span>
                 </button>
             </div>
-
         </div>
 
         <!-- 右カラム：結果・QAエリア -->
         <div class="right-column">
-            
             <div class="card flex-grow-card">
                 <div class="card-header">
                     <span>📄 3. 生成結果</span>
@@ -400,7 +492,7 @@
                     
                     <div id="output-text">
                         <div class="placeholder-text">
-                            項目を選択し、「議事録を作成する」をクリックすると<br>ここに結果が表示されます。
+                            上部の欄にAPIキーを設定し、会議内容を入力して<br>「議事録を作成する」をクリックしてください。
                         </div>
                     </div>
                 </div>
@@ -410,150 +502,196 @@
                 <div class="card-header">
                     <span>💬 4. 会議AIアシスタントに質問</span>
                 </div>
-                <p style="font-size: 0.9rem; color: #64748b; margin-top: 0;">会議の背景や詳細について、チャット感覚で検索・質問できます。</p>
+                <p style="font-size: 0.9rem; color: #64748b; margin-top: 0;">会議の背景や詳細について、チャット感覚で質問できます。</p>
                 <div class="qa-box">
                     <div class="qa-input-group">
-                        <input type="text" id="qa-input" placeholder="例：鈴木さんは何部門？ / ゲストアカウントの扱いはどうなった？" onkeypress="handleEnter(event)">
-                        <button class="btn-search" id="search-btn" onclick="askQuestion()">検索</button>
+                        <input type="text" id="qa-input" placeholder="例：決定事項をもう一度教えて / 誰が何の担当になった？" onkeypress="handleEnter(event)">
+                        <button class="btn-search" id="search-btn">検索</button>
                     </div>
-                    <div class="qa-answer" id="qa-answer">
-                        <!-- ここにAIの回答が入ります -->
-                    </div>
+                    <div class="qa-answer" id="qa-answer"></div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <script>
-        // カスタム通知（Toast）を表示する関数（ブラウザ標準のalertの代替）
-        function showToast(message) {
+    <script type="module">
+        import { GoogleGenAI } from '@google/genai';
+
+        const STORAGE_KEY = 'gijiroku_hero_gemini_key';
+        const apiKeyInput = document.getElementById('api-key-input');
+
+        // ページ読み込み時に保存済みのAPIキーがあれば復元
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedKey = localStorage.getItem(STORAGE_KEY);
+            if (savedKey) {
+                apiKeyInput.value = savedKey;
+            }
+        });
+
+        function showToast(message, isSuccess = false) {
             const toast = document.getElementById("toast-container");
             toast.innerText = message;
-            toast.classList.add("show");
+            toast.className = isSuccess ? "success show" : "show";
             setTimeout(() => {
-                toast.classList.remove("show");
+                toast.className = "";
             }, 3000);
         }
 
-        const mockExtractedData = {
-            "日付": "2026年11月18日（水） 定例ミーティング",
-            "参加者": "高橋（PM/進行）、佐藤（情シス部門）、鈴木（営業部門）、田中（人事総務部門）",
-            "要点": "・社内チャットツール刷新プロジェクトにおける、各部署のトライアル結果の共有と本番導入ツールの最終決定。\n・「BizChat」と「ChatWorks」の比較検討の結果、営業・情シスの要件を高く満たす「BizChat」の採用方針に合意。\n・導入スケジュール（来年1月末）、全社員向けのアナウンス手順、および過去ログ移行における制限事項の共有。",
-            "決定事項": "・次期社内チャットツールとして「BizChat」を正式採用する。\n・本番導入のターゲット時期を「2027年1月末」に設定する。\n・過去のチャットログ移行は仕様上「過去1年分」のみとし、それ以前のデータは別環境にアーカイブ保存とする（全社周知必須）。",
-            "タスク": "・【鈴木（営業）】11/24(火)まで：BizChatモバイルアプリ版の最終動作テストを実施・完了させる。\n・【佐藤（情シス）】12/5(土)まで：IT初心者や年配社員向けのBizChat簡易マニュアル（ドラフト版）を作成する。\n・【田中（人事）】12/10(木)まで：全社員向けの新ツール導入告知およびログ移行制限に関するアナウンス文面を作成・発信する。\n・【佐藤（情シス）】11/25(水)まで：BizChatのゲストアカウント招待枠の仕様および追加ライセンス費用についてメーカーへ確認する。",
-            "重要事項": "・ログ移行の制限（過去1年分のみ）は、過去の履歴を参照する社員が多く混乱を招く恐れがあるため、全社アナナウンスの際に必ず強調して記載し、アーカイブへのアクセス方法も併せて案内すること。\n・全社員へのプレミアムアカウント付与は予算超過のリスクがあるため、ライセンスの割り当て基準（プレミアム/スタンダード）の策定が急務。",
-            "意見": "・【営業/鈴木】：外出先からの顧客対応スピード向上の観点から、スマホアプリの動作が軽快なBizChatを強く推奨。\n・【人事/田中】：BizChatは多機能ゆえに、年配層やITリテラシーが高くない層の利用に懸念あり。充実したマニュアルサポートが不可欠。\n・【情シス/佐藤】：セキュリティ要件を満たす点でBizChatを支持。操作性の課題は情シス作成の簡易マニュアルで補完可能と判断。",
-            "課題・懸念点": "・【コスト課題】全社員分のプレミアムアカウント一括付与による予算オーバーの懸念（部署ごとの権限・ライセンス振り分けの検討が必要）。\n・【リテラシー課題】高機能ツール導入による社内ヘルプデスクへの問い合わせ増加リスク（簡易マニュアルでの事前対策）。",
-            "保留事項": "・社外パートナー向けの「ゲストアカウント」の運用方法（無料招待枠の有無、費用負担の仕組み）については、メーカー確認待ちのため次回持ち越し。",
-            "次回予定": "・日時：2026年11月25日（水）13:00〜\n・主要アジェンダ：保留となった「ゲストアカウントの仕様と費用感」に関する報告と運用ルールの決定、およびライセンス割り当て方針の協議。"
-        };
+        // APIキー保存ボタン
+        document.getElementById('save-api-btn').addEventListener('click', () => {
+            const key = apiKeyInput.value.trim();
+            if (!key) {
+                showToast("APIキーを入力してください。");
+                return;
+            }
+            localStorage.setItem(STORAGE_KEY, key);
+            showToast("APIキーをブラウザに保存しました！", true);
+        });
 
-        function generateMinutes() {
-            const btn = document.getElementById('generate-btn');
-            const btnText = document.getElementById('btn-text');
-            const outputText = document.getElementById('output-text');
-            const overlay = document.getElementById('processing-overlay');
+        // APIキー消去ボタン
+        document.getElementById('clear-api-btn').addEventListener('click', () => {
+            localStorage.removeItem(STORAGE_KEY);
+            apiKeyInput.value = '';
+            showToast("保存されたAPIキーを消去しました。", true);
+        });
 
+        // 入力されているAPIキーを取得する関数
+        function getApiKey() {
+            const key = apiKeyInput.value.trim();
+            if (!key) {
+                showToast("先に画面上部の「🔑 Gemini APIキー設定」にキーを入力してください。");
+                apiKeyInput.focus();
+                return null;
+            }
+            localStorage.setItem(STORAGE_KEY, key);
+            return key;
+        }
+
+        // 議事録生成機能
+        document.getElementById('generate-btn').addEventListener('click', async () => {
+            const apiKey = getApiKey();
+            if (!apiKey) return;
+
+            const transcript = document.getElementById('transcript-input').value.trim();
             const checkboxes = document.querySelectorAll('#options-container input[type="checkbox"]:checked');
+            
+            if (!transcript) {
+                showToast("会議の内容（文字起こし）を入力してください。");
+                return;
+            }
             if (checkboxes.length === 0) {
-                showToast("少なくとも1つの項目を選択してください。"); // alertを置換
+                showToast("少なくとも1つの項目を選択してください。");
                 return;
             }
 
+            const selectedOptions = Array.from(checkboxes).map(cb => cb.value).join("、");
+            const btn = document.getElementById('generate-btn');
+            const btnText = document.getElementById('btn-text');
+            const overlay = document.getElementById('processing-overlay');
+            const outputText = document.getElementById('output-text');
+
             btn.disabled = true;
             btnText.innerText = '⏳ AIが作成中です...';
-            overlay.style.display = 'flex'; 
+            overlay.style.display = 'flex';
             document.getElementById('copy-btn').innerText = '📋 コピーする';
 
-            setTimeout(() => {
-                let plainTextOutput = '';
-                checkboxes.forEach(cb => {
-                    const key = cb.value;
-                    const content = mockExtractedData[key] || "（該当データなし）";
-                    plainTextOutput += `【${key}】\n${content}\n\n`;
+            const prompt = `以下の会議の文字起こしテキストを元に、指定された項目を抽出・要約して議事録を作成してください。
+フォーマットは【項目名】で見出しを作り、その下に箇条書きで分かりやすく記載してください。該当する内容がテキスト内に見当たらない項目は「（記載なし）」としてください。
+
+指定された項目: ${selectedOptions}
+
+会議のテキスト:
+${transcript}`;
+
+            try {
+                const ai = new GoogleGenAI({ apiKey: apiKey });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: prompt,
                 });
-                outputText.innerText = plainTextOutput.trim();
                 
+                outputText.innerText = response.text;
+            } catch (error) {
+                console.error(error);
+                outputText.innerHTML = `<span style="color: #dc2626; font-weight: bold;">エラーが発生しました：</span><br><span style="color: #dc2626;">APIキーが正しいか（Google AI Studioで発行した AIza... から始まるキーか）を確認してください。</span><br><br><small style="color: #64748b;">詳細: ${error.message}</small>`;
+            } finally {
                 btn.disabled = false;
                 btnText.innerText = '🚀 議事録を作成する';
-                overlay.style.display = 'none'; 
-            }, 2000); 
-        }
+                overlay.style.display = 'none';
+            }
+        });
 
-        function askQuestion() {
-            const inputField = document.getElementById('qa-input');
-            const question = inputField.value.trim();
+        // 質問機能
+        document.getElementById('search-btn').addEventListener('click', async () => {
+            const apiKey = getApiKey();
+            if (!apiKey) return;
+
+            const transcript = document.getElementById('transcript-input').value.trim();
+            const question = document.getElementById('qa-input').value.trim();
             const searchBtn = document.getElementById('search-btn');
             const answerBox = document.getElementById('qa-answer');
 
+            if (!transcript) {
+                showToast("先に会議の内容（文字起こし）を入力してください。");
+                return;
+            }
             if (!question) return;
 
             searchBtn.disabled = true;
             searchBtn.innerText = '検索中...';
             answerBox.style.display = 'none';
 
-            setTimeout(() => {
-                let answer = "";
+            const prompt = `以下の会議テキストの内容に基づいて、質問に簡潔かつ分かりやすく答えてください。
+会議テキストに記載がない場合は「その情報はこの会議記録には含まれていません」と答えてください。
 
-                if (question.includes("鈴木")) {
-                    answer = "【営業部門】です。\n詳細：営業部として、スマホアプリの動作が軽快で顧客対応スピードが上がる「BizChat」を強く推しています。また、11月24日までにBizChatモバイルアプリ版の最終動作テストを完了させるタスクを担当しています。";
-                } else if (question.includes("ログ") || question.includes("過去") || question.includes("データ") || question.includes("移行")) {
-                    answer = "新ツール（BizChat）への過去ログ移行は仕様上「過去1年分のみ」となります。\n詳細：それ以前のデータは別環境にアーカイブ保存されます。社員の混乱を避けるため、12月10日までに人事の田中さんが全社へアナウンスする際に、この制限事項とアーカイブのアクセス方法を強調して周知することが決定事項となっています。";
-                } else if (question.includes("ゲスト") || question.includes("社外") || question.includes("アカウント")) {
-                    answer = "ゲストアカウントの扱いは現在【保留】となっています。\n詳細：営業の鈴木さんから「引き続き無料で招待できる仕組みにしてほしい」との要望が出ましたが、仕様と追加費用について情シスの佐藤さんがメーカーに確認することになり、次回11月25日の会議に持ち越しとなりました。";
-                } else if (question.includes("コスト") || question.includes("費用") || question.includes("ライセンス")) {
-                    answer = "ライセンス費用について予算オーバーの懸念が挙がっています。\n詳細：全社員にプレミアムアカウントを付与すると予算を超過するため、一部の部署をスタンダードアカウントにするなど、部署ごとの権限・ライセンス振り分け（割り当て基準）を検討することが課題となっています。";
-                } else {
-                    answer = "入力された会議内容から、その質問に対する明確な言及を見つけることができませんでした。別の言い回しで検索するか、会議テキストに当該内容が含まれているかご確認ください。";
-                }
+会議テキスト:
+${transcript}
 
-                answerBox.innerText = answer;
+質問: ${question}`;
+
+            try {
+                const ai = new GoogleGenAI({ apiKey: apiKey });
+                const response = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: prompt,
+                });
+                
+                answerBox.innerText = response.text;
                 answerBox.style.display = 'block';
+            } catch (error) {
+                console.error(error);
+                answerBox.innerHTML = `<span style="color: #dc2626;">エラーが発生しました。APIキーが正しいか確認してください。<br><small>${error.message}</small></span>`;
+                answerBox.style.display = 'block';
+            } finally {
                 searchBtn.disabled = false;
                 searchBtn.innerText = '検索';
-            }, 1500);
-        }
-
-        function handleEnter(event) {
-            if (event.key === 'Enter') {
-                askQuestion();
             }
-        }
+        });
 
-        function copyToClipboard() {
+        window.handleEnter = function(event) {
+            if (event.key === 'Enter') {
+                document.getElementById('search-btn').click();
+            }
+        };
+
+        window.copyToClipboard = function() {
             const outputText = document.getElementById('output-text').innerText;
             const copyBtn = document.getElementById('copy-btn');
             
-            if (!outputText || outputText.includes("項目を選択し")) {
-                showToast("コピーする議事録がありません。"); // alertを置換
+            if (!outputText || outputText.includes("上部の欄にAPIキーを設定し")) {
+                showToast("コピーする議事録がありません。");
                 return;
             }
 
-            // プレビュー環境での制限を考慮し、execCommandを使用した堅牢なコピー処理へ調整
-            const textarea = document.createElement('textarea');
-            textarea.value = outputText;
-            textarea.style.position = 'fixed'; // スクロールを防ぐ
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            
-            try {
-                document.execCommand('copy');
-                copyBtn.innerText = '✅ コピーしました！';
-                copyBtn.style.backgroundColor = '#dcfce3';
-                copyBtn.style.color = '#166534';
-                setTimeout(() => {
-                    copyBtn.innerText = '📋 コピーする';
-                    copyBtn.style.backgroundColor = '#e2e8f0';
-                    copyBtn.style.color = '#475569';
-                }, 3000);
-            } catch (err) {
-                showToast("コピーに失敗しました。");
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(outputText).then(() => {
+                    showCopySuccess(copyBtn);
+                }).catch(() => {
+                    fallbackCopy(outputText, copyBtn);
+                });
+            } else {
+                fallbackCopy(outputText, copyBtn);
             }
-            
-            document.body.removeChild(textarea);
-        }
-    </script>
-</body>
-</html>
+        };
+
+        function fallbackCopy(text, copyBtn) {
