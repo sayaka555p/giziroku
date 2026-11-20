@@ -314,9 +314,38 @@
             text-align: center;
             margin-top: 50px;
         }
+
+        /* 追加: カスタム通知（Toast）のスタイル */
+        #toast-container {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: #ef4444; 
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 20px;
+            transform: translateX(-50%);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            font-weight: bold;
+        }
+
+        #toast-container.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(10px);
+        }
     </style>
 </head>
 <body>
+
+    <!-- カスタム通知用コンテナ -->
+    <div id="toast-container">メッセージ</div>
 
     <div class="header">
         <h1>議事録ヒーロー</h1>
@@ -397,6 +426,16 @@
     </div>
 
     <script>
+        // カスタム通知（Toast）を表示する関数（ブラウザ標準のalertの代替）
+        function showToast(message) {
+            const toast = document.getElementById("toast-container");
+            toast.innerText = message;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
         const mockExtractedData = {
             "日付": "2026年11月18日（水） 定例ミーティング",
             "参加者": "高橋（PM/進行）、佐藤（情シス部門）、鈴木（営業部門）、田中（人事総務部門）",
@@ -418,7 +457,7 @@
 
             const checkboxes = document.querySelectorAll('#options-container input[type="checkbox"]:checked');
             if (checkboxes.length === 0) {
-                alert("少なくとも1つの項目を選択してください。");
+                showToast("少なくとも1つの項目を選択してください。"); // alertを置換
                 return;
             }
 
@@ -487,11 +526,20 @@
             const copyBtn = document.getElementById('copy-btn');
             
             if (!outputText || outputText.includes("項目を選択し")) {
-                alert("コピーする議事録がありません。");
+                showToast("コピーする議事録がありません。"); // alertを置換
                 return;
             }
 
-            navigator.clipboard.writeText(outputText).then(() => {
+            // プレビュー環境での制限を考慮し、execCommandを使用した堅牢なコピー処理へ調整
+            const textarea = document.createElement('textarea');
+            textarea.value = outputText;
+            textarea.style.position = 'fixed'; // スクロールを防ぐ
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
                 copyBtn.innerText = '✅ コピーしました！';
                 copyBtn.style.backgroundColor = '#dcfce3';
                 copyBtn.style.color = '#166534';
@@ -500,7 +548,11 @@
                     copyBtn.style.backgroundColor = '#e2e8f0';
                     copyBtn.style.color = '#475569';
                 }, 3000);
-            });
+            } catch (err) {
+                showToast("コピーに失敗しました。");
+            }
+            
+            document.body.removeChild(textarea);
         }
     </script>
 </body>
