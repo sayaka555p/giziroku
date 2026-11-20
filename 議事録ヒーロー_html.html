@@ -8,9 +8,10 @@
         :root {
             --primary-color: #f59e0b; 
             --primary-hover: #d97706;
-            --secondary-color: #3b82f6; /* 検索AI用のブルー */
+            --secondary-color: #3b82f6; 
             --secondary-hover: #2563eb;
-            --bg-color: #f1f5f9;
+            /* 背景色を淡いライトブルーに変更 */
+            --bg-color: #e0f2fe; 
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
@@ -48,17 +49,24 @@
 
         .header p {
             color: var(--text-muted);
-            font-size: 0.95re🤖
+            font-size: 0.95rem;
             margin: 0;
         }
 
+        /* カラムレイアウトの整備 */
         .container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 24px;
             max-width: 1400px;
             margin: 0 auto;
-            align-items: start;
+            align-items: stretch;
+        }
+
+        .left-column, .right-column {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
         @media (max-width: 900px) {
@@ -73,7 +81,13 @@
             padding: 24px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             border: 1px solid var(--border-color);
-            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 伸縮させて高さを揃えるためのクラス */
+        .flex-grow-card {
+            flex-grow: 1;
         }
 
         .card-header {
@@ -89,17 +103,17 @@
             align-items: center;
         }
 
-        /* 左側：入力エリア */
+        /* 入力エリア */
         #transcript-input {
             width: 100%;
-            height: calc(100vh - 180px); /* 画面高さに合わせて広げる */
-            min-height: 600px;
+            flex-grow: 1;
+            min-height: 350px;
             padding: 16px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             font-family: inherit;
             font-size: 0.95rem;
-            resize: vertical;
+            resize: none;
             box-sizing: border-box;
             background-color: #f8fafc;
             color: var(--text-main);
@@ -159,6 +173,7 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
+            margin-top: auto;
         }
 
         .btn-main:hover {
@@ -189,8 +204,8 @@
         }
 
         .output-content {
-            min-height: 250px;
-            max-height: 400px;
+            flex-grow: 1;
+            min-height: 350px;
             padding: 20px;
             background-color: #f8fafc;
             border-radius: 8px;
@@ -227,7 +242,7 @@
             to { transform: rotate(360deg); }
         }
 
-        /* 検索・QAエリア（新機能） */
+        /* 検索・QAエリア */
         .qa-box {
             background-color: #eff6ff;
             border: 1px solid #bfdbfe;
@@ -309,16 +324,14 @@
     </div>
 
     <div class="container">
-        <!-- 左カラム：入力エリア -->
-        <div class="card" style="margin-bottom: 0;">
-            <div class="card-header">📝 1. 会議の内容（文字起こし）を入力</div>
-            <!-- テスト用の会議内容を最初から入れています -->
-            <textarea id="transcript-input" placeholder="ここに会議の文字起こしテキストやメモを貼り付けてください..."></textarea>
-        </div>
+        <!-- 左カラム：入力・設定エリア -->
+        <div class="left-column">
+            
+            <div class="card flex-grow-card">
+                <div class="card-header">📝 1. 会議の内容（文字起こし）を入力</div>
+                <textarea id="transcript-input" placeholder="ここに会議の文字起こしテキストやメモを貼り付けてください..."></textarea>
+            </div>
 
-        <!-- 右カラム：設定・出力・QAエリア -->
-        <div>
-            <!-- 設定・生成ボタン -->
             <div class="card">
                 <div class="card-header">⚙️ 2. まとめる項目を選択</div>
                 <div class="options-grid" id="options-container">
@@ -339,8 +352,12 @@
                 </button>
             </div>
 
-            <!-- 出力エリア -->
-            <div class="card">
+        </div>
+
+        <!-- 右カラム：結果・QAエリア -->
+        <div class="right-column">
+            
+            <div class="card flex-grow-card">
                 <div class="card-header">
                     <span>📄 3. 生成結果</span>
                     <button class="btn-copy" onclick="copyToClipboard()" id="copy-btn">📋 コピーする</button>
@@ -360,7 +377,6 @@
                 </div>
             </div>
 
-            <!-- QA・検索エリア（新規追加） -->
             <div class="card">
                 <div class="card-header">
                     <span>💬 4. 会議AIアシスタントに質問</span>
@@ -381,14 +397,13 @@
     </div>
 
     <script>
-        // 【濃度9】ビジネスの現場でそのまま使える高解像度の抽出データ（モック）
         const mockExtractedData = {
             "日付": "2026年11月18日（水） 定例ミーティング",
             "参加者": "高橋（PM/進行）、佐藤（情シス部門）、鈴木（営業部門）、田中（人事総務部門）",
             "要点": "・社内チャットツール刷新プロジェクトにおける、各部署のトライアル結果の共有と本番導入ツールの最終決定。\n・「BizChat」と「ChatWorks」の比較検討の結果、営業・情シスの要件を高く満たす「BizChat」の採用方針に合意。\n・導入スケジュール（来年1月末）、全社員向けのアナウンス手順、および過去ログ移行における制限事項の共有。",
             "決定事項": "・次期社内チャットツールとして「BizChat」を正式採用する。\n・本番導入のターゲット時期を「2027年1月末」に設定する。\n・過去のチャットログ移行は仕様上「過去1年分」のみとし、それ以前のデータは別環境にアーカイブ保存とする（全社周知必須）。",
             "タスク": "・【鈴木（営業）】11/24(火)まで：BizChatモバイルアプリ版の最終動作テストを実施・完了させる。\n・【佐藤（情シス）】12/5(土)まで：IT初心者や年配社員向けのBizChat簡易マニュアル（ドラフト版）を作成する。\n・【田中（人事）】12/10(木)まで：全社員向けの新ツール導入告知およびログ移行制限に関するアナウンス文面を作成・発信する。\n・【佐藤（情シス）】11/25(水)まで：BizChatのゲストアカウント招待枠の仕様および追加ライセンス費用についてメーカーへ確認する。",
-            "重要事項": "・ログ移行の制限（過去1年分のみ）は、過去の履歴を参照する社員が多く混乱を招く恐れがあるため、全社アナウンスの際に必ず強調して記載し、アーカイブへのアクセス方法も併せて案内すること。\n・全社員へのプレミアムアカウント付与は予算超過のリスクがあるため、ライセンスの割り当て基準（プレミアム/スタンダード）の策定が急務。",
+            "重要事項": "・ログ移行の制限（過去1年分のみ）は、過去の履歴を参照する社員が多く混乱を招く恐れがあるため、全社アナナウンスの際に必ず強調して記載し、アーカイブへのアクセス方法も併せて案内すること。\n・全社員へのプレミアムアカウント付与は予算超過のリスクがあるため、ライセンスの割り当て基準（プレミアム/スタンダード）の策定が急務。",
             "意見": "・【営業/鈴木】：外出先からの顧客対応スピード向上の観点から、スマホアプリの動作が軽快なBizChatを強く推奨。\n・【人事/田中】：BizChatは多機能ゆえに、年配層やITリテラシーが高くない層の利用に懸念あり。充実したマニュアルサポートが不可欠。\n・【情シス/佐藤】：セキュリティ要件を満たす点でBizChatを支持。操作性の課題は情シス作成の簡易マニュアルで補完可能と判断。",
             "課題・懸念点": "・【コスト課題】全社員分のプレミアムアカウント一括付与による予算オーバーの懸念（部署ごとの権限・ライセンス振り分けの検討が必要）。\n・【リテラシー課題】高機能ツール導入による社内ヘルプデスクへの問い合わせ増加リスク（簡易マニュアルでの事前対策）。",
             "保留事項": "・社外パートナー向けの「ゲストアカウント」の運用方法（無料招待枠の有無、費用負担の仕組み）については、メーカー確認待ちのため次回持ち越し。",
@@ -396,7 +411,6 @@
         };
 
         function generateMinutes() {
-            const transcript = document.getElementById('transcript-input').value;
             const btn = document.getElementById('generate-btn');
             const btnText = document.getElementById('btn-text');
             const outputText = document.getElementById('output-text');
@@ -425,10 +439,9 @@
                 btn.disabled = false;
                 btnText.innerText = '🚀 議事録を作成する';
                 overlay.style.display = 'none'; 
-            }, 2000); // 重厚感を持たせるため2秒待機
+            }, 2000); 
         }
 
-        // 新機能：QA・検索機能（擬似AI応答）
         function askQuestion() {
             const inputField = document.getElementById('qa-input');
             const question = inputField.value.trim();
@@ -437,16 +450,13 @@
 
             if (!question) return;
 
-            // UIを検索中に変更
             searchBtn.disabled = true;
             searchBtn.innerText = '検索中...';
             answerBox.style.display = 'none';
 
-            // AIの思考時間をシミュレート（1.5秒）
             setTimeout(() => {
                 let answer = "";
 
-                // 簡易的なキーワードマッチングによる擬似AI応答
                 if (question.includes("鈴木")) {
                     answer = "【営業部門】です。\n詳細：営業部として、スマホアプリの動作が軽快で顧客対応スピードが上がる「BizChat」を強く推しています。また、11月24日までにBizChatモバイルアプリ版の最終動作テストを完了させるタスクを担当しています。";
                 } else if (question.includes("ログ") || question.includes("過去") || question.includes("データ") || question.includes("移行")) {
@@ -459,7 +469,6 @@
                     answer = "入力された会議内容から、その質問に対する明確な言及を見つけることができませんでした。別の言い回しで検索するか、会議テキストに当該内容が含まれているかご確認ください。";
                 }
 
-                // 回答のセットとUI復帰
                 answerBox.innerText = answer;
                 answerBox.style.display = 'block';
                 searchBtn.disabled = false;
@@ -467,7 +476,6 @@
             }, 1500);
         }
 
-        // Enterキーで検索を実行するリスナー
         function handleEnter(event) {
             if (event.key === 'Enter') {
                 askQuestion();
