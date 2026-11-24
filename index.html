@@ -426,7 +426,6 @@
         <p>テキストを入力し、必要な項目を選ぶだけ。会議の疑問はAIアシスタントに直接質問できます。</p>
     </div>
 
-    <!-- 安全なAPIキー設定エリア -->
     <div class="api-key-bar">
         <div class="api-key-title">🔑 Gemini APIキー設定</div>
         <div class="api-key-controls">
@@ -479,7 +478,7 @@
                 <div class="output-content" id="output-area">
                     <div class="processing-overlay" id="processing-overlay">
                         <div class="loader"></div>
-                        <div style="color: var(--primary-color); font-weight: bold;">AIが分析・作成中です...</div>
+                        <div id="loading-status-text" style="color: var(--primary-color); font-weight: bold;">AIが分析・作成中です...</div>
                     </div>
                     
                     <div id="output-text">
@@ -510,8 +509,12 @@
         import { GoogleGenAI } from 'https://esm.run/@google/genai';
 
         const STORAGE_KEY = 'gijiroku_hero_gemini_key';
-        // エラーメッセージの指示通り最新の gemini-3.8-flash を指定
-        const MODEL_NAME = 'gemini-3.8-flash';
+        // 混雑（503エラー）時に順番に試すモデル一覧
+        const FALLBACK_MODELS = [
+            'gemini-3.8-flash',
+            'gemini-3.5-flash-lite',
+            'gemini-3.7-flash'
+        ];
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem(STORAGE_KEY);
@@ -564,6 +567,53 @@
             return localStorage.getItem(STORAGE_KEY) || '';
         }
 
+        // 混雑時に自動で別モデルに切り替えて再試行する共通関数
+        async function callGeminiWithFallback(apiKey, prompt, onRetryCallback) {
+            const ai = new GoogleGenAI({ apiKey: apiKey });
+            let lastError = null;
+
+            for (let i = 0; i < FALLBACK_MODELS.length; i++) {
+                const modelName = FALLBACK_MODELS[i];
+                try {
+                    const response = await ai.models.generateContent({
+                        model: modelName,
+                        contents: prompt,
+                    });
+                    return response.text;
+                } catch (error) {
+                    lastError = error;
+                    const errMsg = error.message || '';
+                    // サーバー混雑（503）や一時的なエラーの場合は次のモデルへ自動切り替え
+                    if (errMsg.includes('503') || errMsg.includes('UNAVAILABLE') || errMsg.includes('overloaded') || errMsg.includes('429')) {
+                        if (i < FALLBACK_MODELS.length - 1) {
+                            if (onRetryCallback) onRetryCallback(i + 1);
+                            await new Promise(resolve => setTimeout(resolve, 1500));
+                            continue;
+                        }
+                    } else {
+                        // APIキー自体の間違い（400/403）などの場合は即座にエラーを出す
+                        throw error;
+                    }
+                }
+            }
+            throw lastError;
+        }
+
+        // エラー内容を分かりやすい日本語に翻訳して表示する関数
+        function formatFriendlyError(error) {
+            const msg = error.message || '';
+            if (msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('overloaded')) {
+                return `<span style="color: #d97706; font-weight: bold;">⏳ 現在GoogleのAIサーバーが大変混雑しています</span><br>APIキーの設定は問題ありません。1〜2分ほど時間を置いてから、もう一度ボタンを押してください。`;
+            }
+            if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
+                return `<span style="color: #d97706; font-weight: bold;">⏳ 短時間の利用回数上限に達しました</span><br>1分ほど待ってから、もう一度ボタンを押してください。`;
+            }
+            if (msg.includes('400') || msg.includes('403') || msg.includes('API_KEY_INVALID')) {
+                return `<span style="color: #dc2626; font-weight: bold;">🔑 APIキーが正しく認識されませんでした</span><br>前後に余分なスペースが入っていないか確認し、再度保存してください。`;
+            }
+            return `<span style="color: #dc2626; font-weight: bold;">エラーが発生しました：</span><br><small style="color:#64748b;">${msg}</small>`;
+        }
+
         window.generateMinutes = async function() {
             const apiKey = getApiKey();
             if (!apiKey) {
@@ -588,10 +638,12 @@
             const btn = document.getElementById('generate-btn');
             const btnText = document.getElementById('btn-text');
             const overlay = document.getElementById('processing-overlay');
+            const loadingText = document.getElementById('loading-status-text');
             const outputText = document.getElementById('output-text');
 
             btn.disabled = true;
             btnText.innerText = '⏳ AIが作成中です...';
+            loadingText.innerText = 'AIが分析・作成中です...';
             overlay.style.display = 'flex';
             document.getElementById('copy-btn').innerText = '📋 コピーする';
 
@@ -606,15 +658,13 @@ ${transcript}
 `;
 
             try {
-                const ai = new GoogleGenAI({ apiKey: apiKey });
-                const response = await ai.models.generateContent({
-                    model: MODEL_NAME,
-                    contents: prompt,
+                const result = await callGeminiWithFallback(apiKey, prompt, (retryCount) => {
+                    loadingText.innerText = `サーバー混雑のため別ルートで再試行中 (${retryCount}回目)...`;
                 });
-                outputText.innerText = response.text;
+                outputText.innerText = result;
             } catch (error) {
                 console.error(error);
-                outputText.innerHTML = `<span style="color: #dc2626; font-weight: bold;">エラーが発生しました：</span><br>APIキーが正しく入力されているか確認してください。<br><small style="color:#64748b;">詳細: ${error.message}</small>`;
+                outputText.innerHTML = formatFriendlyError(error);
             } finally {
                 btn.disabled = false;
                 btnText.innerText = '🚀 議事録を作成する';
@@ -657,16 +707,14 @@ ${transcript}
 `;
 
             try {
-                const ai = new GoogleGenAI({ apiKey: apiKey });
-                const response = await ai.models.generateContent({
-                    model: MODEL_NAME,
-                    contents: prompt,
+                const result = await callGeminiWithFallback(apiKey, prompt, () => {
+                    searchBtn.innerText = '再試行中...';
                 });
-                answerBox.innerText = response.text;
+                answerBox.innerText = result;
                 answerBox.style.display = 'block';
             } catch (error) {
                 console.error(error);
-                answerBox.innerHTML = `<span style="color: #dc2626;">エラーが発生しました：APIキーを確認してください。<br><small style="color:#64748b;">詳細: ${error.message}</small></span>`;
+                answerBox.innerHTML = formatFriendlyError(error);
                 answerBox.style.display = 'block';
             } finally {
                 searchBtn.disabled = false;
