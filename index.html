@@ -6,60 +6,140 @@
     <title>議事録ヒーロー</title>
     <style>
         :root {
-            --primary-color: #f59e0b; 
-            --primary-hover: #d97706;
-            --secondary-color: #3b82f6; 
-            --secondary-hover: #2563eb;
-            --bg-color: #e0f2fe; 
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-            --border-color: #e2e8f0;
+            --bg-canvas: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f8fafc;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-light: #e2e8f0;
+            --border-medium: #cbd5e1;
+            --accent-primary: #2563eb;
+            --accent-hover: #1d4ed8;
+            --accent-soft: #eff6ff;
+            --dark-btn: #0f172a;
+            --dark-btn-hover: #1e293b;
+            --radius-lg: 10px;
+            --radius-md: 6px;
+            --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body {
-            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
+            background-color: var(--bg-canvas);
+            color: var(--text-primary);
             margin: 0;
-            padding: 20px;
+            padding: 0;
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
+        /* トップナビゲーションバー */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-light);
+            padding: 14px 24px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
 
-        .header h1 {
-            font-size: 1.8rem;
-            color: var(--text-main);
-            margin: 0 0 10px 0;
+        .topbar-inner {
+            max-width: 1440px;
+            margin: 0 auto;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
             gap: 10px;
         }
 
-        .header h1::before {
-            content: "🤖"; 
-            font-size: 2rem;
+        .brand-icon {
+            width: 32px;
+            height: 32px;
+            background-color: var(--dark-btn);
+            color: #ffffff;
+            border-radius: 7px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .header p {
-            color: var(--text-muted);
-            font-size: 0.95rem;
+        .brand-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
             margin: 0;
         }
 
-        .api-key-bar {
-            max-width: 1400px;
-            margin: 0 auto 24px auto;
-            background-color: #ffffff;
-            border: 1px solid #bae6fd;
-            border-radius: 12px;
-            padding: 16px 24px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+        .brand-sub {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-left: 8px;
+            padding-left: 10px;
+            border-left: 1px solid var(--border-light);
+        }
+
+        @media (max-width: 640px) {
+            .brand-sub { display: none; }
+        }
+
+        /* APIキー設定ボタン＆ドロワー */
+        .api-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .api-toggle-btn:hover {
+            background-color: #f1f5f9;
+            color: var(--text-primary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #f59e0b;
+        }
+
+        .status-dot.connected {
+            background-color: #10b981;
+        }
+
+        .api-drawer {
+            display: none;
+            background-color: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-light);
+            padding: 14px 24px;
+        }
+
+        .api-drawer.open {
+            display: block;
+        }
+
+        .api-drawer-inner {
+            max-width: 1440px;
+            margin: 0 auto;
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -67,353 +147,574 @@
             gap: 12px;
         }
 
-        .api-key-title {
-            font-weight: bold;
-            font-size: 0.95rem;
-            color: #0369a1;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .api-drawer-info {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
         }
 
-        .api-key-controls {
+        .api-drawer-form {
             display: flex;
-            flex-wrap: wrap;
             align-items: center;
             gap: 8px;
             flex-grow: 1;
-            max-width: 600px;
+            max-width: 520px;
         }
 
-        .api-key-controls input {
+        .api-drawer-form input {
             flex-grow: 1;
-            min-width: 200px;
             padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 0.9rem;
-            background-color: #f8fafc;
-        }
-
-        .api-key-controls input:focus {
-            outline: none;
-            border-color: var(--secondary-color);
-        }
-
-        .btn-key {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 6px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
             font-size: 0.85rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
+            background-color: var(--bg-surface);
         }
 
-        .btn-save-key {
-            background-color: #0284c7;
-            color: white;
+        .api-drawer-form input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
         }
 
-        .btn-save-key:hover {
-            background-color: #0369a1;
-        }
-
-        .btn-clear-key {
-            background-color: #e2e8f0;
-            color: #475569;
-        }
-
-        .btn-clear-key:hover {
-            background-color: #cbd5e1;
-        }
-
-        .api-key-status {
-            width: 100%;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .container {
+        /* メインワークスペース */
+        .workspace {
+            max-width: 1440px;
+            margin: 24px auto;
+            padding: 0 24px 40px 24px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1.15fr;
             gap: 24px;
-            max-width: 1400px;
-            margin: 0 auto;
-            align-items: stretch;
+            align-items: start;
         }
 
-        .left-column, .right-column {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        @media (max-width: 900px) {
-            .container {
+        @media (max-width: 960px) {
+            .workspace {
                 grid-template-columns: 1fr;
+                padding: 0 16px 32px 16px;
             }
         }
 
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid var(--border-color);
+        .column {
             display: flex;
             flex-direction: column;
+            gap: 20px;
         }
 
-        .flex-grow-card {
-            flex-grow: 1;
+        .panel {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
         }
 
-        .card-header {
-            font-size: 1.1rem;
-            font-weight: bold;
-            margin-top: 0;
-            margin-bottom: 16px;
-            color: #334155;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 8px;
+        .panel-header {
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-light);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .panel-title-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: var(--accent-primary);
+            background-color: var(--accent-soft);
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .panel-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        /* テキスト入力エリア */
+        .textarea-wrapper {
+            position: relative;
         }
 
         #transcript-input {
             width: 100%;
-            flex-grow: 1;
-            min-height: 350px;
-            padding: 16px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            min-height: 280px;
+            padding: 14px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
             font-family: inherit;
-            font-size: 0.95rem;
-            resize: none;
-            box-sizing: border-box;
-            background-color: #f8fafc;
-            color: var(--text-main);
-            line-height: 1.8;
+            font-size: 0.92rem;
+            line-height: 1.75;
+            color: var(--text-primary);
+            background-color: var(--bg-subtle);
+            resize: vertical;
+            transition: border-color 0.15s, background-color 0.15s;
         }
 
         #transcript-input:focus {
             outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+            border-color: var(--accent-primary);
+            background-color: var(--bg-surface);
         }
 
+        .meta-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .link-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .link-btn:hover {
+            color: var(--accent-primary);
+            text-decoration: underline;
+        }
+
+        /* セクション区切り */
+        .setting-block {
+            margin-bottom: 22px;
+        }
+
+        .setting-block:last-of-type {
+            margin-bottom: 24px;
+        }
+
+        .setting-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .setting-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        /* 項目選択チップ（初期はすべて未選択） */
         .options-grid {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 8px;
         }
 
-        .checkbox-wrapper input[type="checkbox"] {
+        .chip-item input[type="checkbox"] {
             display: none;
         }
 
-        .checkbox-wrapper label {
-            display: inline-block;
-            padding: 8px 16px;
-            background-color: #f1f5f9;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
+        .chip-item label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 13px;
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.15s ease;
             user-select: none;
         }
 
-        .checkbox-wrapper input[type="checkbox"]:checked + label {
-            background-color: #fffbeb;
-            border-color: var(--primary-color);
-            color: var(--primary-hover);
-            font-weight: bold;
+        .chip-item label:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
         }
 
-        .btn-main {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            display: flex;
-            justify-content: center;
+        .chip-item input[type="checkbox"]:checked + label {
+            background-color: var(--accent-soft);
+            border-color: var(--accent-primary);
+            color: var(--accent-primary);
+            font-weight: 700;
+        }
+
+        .chip-check {
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid var(--border-medium);
+            border-radius: 3px;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
-            margin-top: auto;
+            justify-content: center;
+            background-color: #ffffff;
+            transition: all 0.15s;
         }
 
-        .btn-main:hover {
-            background-color: var(--primary-hover);
+        .chip-item input[type="checkbox"]:checked + label .chip-check {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
         }
 
-        .btn-main:disabled {
-            background-color: #cbd5e1;
+        /* 情報量 1〜10 棒状クリックゲージ */
+        .volume-level-badge {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            background-color: var(--accent-soft);
+            padding: 2px 10px;
+            border-radius: 4px;
+        }
+
+        .volume-bar-container {
+            display: flex;
+            width: 100%;
+            height: 38px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background-color: var(--bg-subtle);
+            user-select: none;
+        }
+
+        .volume-segment {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            border-right: 1px solid var(--border-light);
+            cursor: pointer;
+            transition: background-color 0.12s, color 0.12s;
+        }
+
+        .volume-segment:last-child {
+            border-right: none;
+        }
+
+        .volume-segment:hover {
+            background-color: #e2e8f0;
+        }
+
+        .volume-segment.active {
+            background-color: var(--accent-primary);
+            color: #ffffff;
+            border-right-color: rgba(255, 255, 255, 0.25);
+        }
+
+        .volume-segment.active:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .volume-scale-hints {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+
+        /* AI自動強調スタイル選択 */
+        .highlight-presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .preset-radio input[type="radio"] {
+            display: none;
+        }
+
+        .preset-radio label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background-color: var(--bg-subtle);
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .preset-radio input[type="radio"]:checked + label {
+            border-color: var(--accent-primary);
+            background-color: var(--accent-soft);
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        /* メインボタン */
+        .btn-primary {
+            width: 100%;
+            padding: 13px 20px;
+            background-color: var(--dark-btn);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.15s;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-btn-hover);
+        }
+
+        .btn-primary:disabled {
+            background-color: var(--text-muted);
             cursor: not-allowed;
         }
 
-        .btn-copy {
-            background-color: #e2e8f0;
-            color: #475569;
-            border: none;
+        .btn-sm {
             padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: bold;
+            border-radius: var(--radius-md);
+            font-size: 0.82rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            border: 1px solid var(--border-medium);
+            background-color: var(--bg-surface);
+            color: var(--text-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
         }
 
-        .btn-copy:hover {
-            background-color: #cbd5e1;
-            color: #1e293b;
+        .btn-sm:hover {
+            background-color: var(--bg-subtle);
         }
 
-        .output-content {
-            flex-grow: 1;
-            min-height: 350px;
-            padding: 20px;
-            background-color: #f8fafc;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            white-space: pre-wrap;
-            font-size: 0.95rem;
-            overflow-y: auto;
+        .btn-sm-accent {
+            background-color: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: #ffffff;
+        }
+
+        .btn-sm-accent:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* リッチテキスト装飾ツールバー（生成結果用） */
+        .format-toolbar {
+            padding: 8px 16px;
+            background-color: var(--bg-subtle);
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background-color: var(--border-medium);
+        }
+
+        .toolbar-caption {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-right: 4px;
+        }
+
+        .tool-btn {
+            min-width: 28px;
+            height: 28px;
+            padding: 0 7px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            background-color: transparent;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.12s;
+        }
+
+        .tool-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        .color-swatch {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(15, 23, 42, 0.15);
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.12s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.15);
+        }
+
+        .marker-swatch {
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            border: 1px solid rgba(15, 23, 42, 0.12);
+            cursor: pointer;
+        }
+
+        .marker-swatch:hover {
+            opacity: 0.85;
+        }
+
+        /* 生成結果エリア（編集・装飾可能） */
+        .output-wrapper {
             position: relative;
+        }
+
+        #output-text {
+            min-height: 360px;
+            max-height: 600px;
+            padding: 20px;
+            font-size: 0.94rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+            background-color: var(--bg-surface);
+            overflow-y: auto;
+            white-space: pre-wrap;
+            outline: none;
+        }
+
+        #output-text:focus {
+            background-color: #fcfdfe;
+        }
+
+        .placeholder-box {
+            color: var(--text-muted);
+            text-align: center;
+            padding: 80px 20px;
+            font-size: 0.9rem;
         }
 
         .processing-overlay {
             display: none;
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(248, 250, 252, 0.9);
+            inset: 0;
+            background: rgba(255, 255, 255, 0.92);
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            border-radius: 8px;
+            gap: 12px;
             z-index: 10;
         }
 
-        .loader {
-            width: 30px;
-            height: 30px;
-            border: 4px solid #e2e8f0;
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid var(--border-light);
+            border-top-color: var(--accent-primary);
             border-radius: 50%;
-            border-top-color: var(--primary-color);
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 10px;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .qa-box {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 10px;
-        }
-
-        .qa-input-group {
+        /* AI質問エリア */
+        .qa-input-row {
             display: flex;
-            gap: 10px;
+            gap: 8px;
         }
 
-        .qa-input-group input {
+        .qa-input-row input {
             flex-grow: 1;
-            padding: 12px;
-            border: 1px solid #93c5fd;
-            border-radius: 6px;
-            font-size: 0.95rem;
+            padding: 10px 14px;
+            border: 1px solid var(--border-medium);
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .qa-input-row input:focus {
             outline: none;
+            border-color: var(--accent-primary);
         }
 
-        .qa-input-group input:focus {
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        .btn-search {
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .btn-search:hover {
-            background-color: var(--secondary-hover);
-        }
-        
-        .btn-search:disabled {
-            background-color: #94a3b8;
-            cursor: not-allowed;
-        }
-
-        .qa-answer {
-            margin-top: 16px;
-            padding: 16px;
-            background-color: white;
-            border-radius: 6px;
-            border: 1px solid #e2e8f0;
-            font-size: 0.95rem;
+        .qa-answer-box {
             display: none;
+            margin-top: 14px;
+            padding: 16px;
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-left: 3px solid var(--accent-primary);
+            border-radius: var(--radius-md);
+            font-size: 0.92rem;
+            line-height: 1.7;
             white-space: pre-wrap;
         }
-        
-        .qa-answer::before {
-            content: "💡 AIの回答：";
+
+        .qa-answer-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 6px;
             display: block;
-            font-weight: bold;
-            color: var(--secondary-color);
-            margin-bottom: 8px;
         }
 
-        .placeholder-text {
-            color: var(--text-muted);
-            text-align: center;
-            margin-top: 50px;
-        }
-
+        /* トースト通知 */
         #toast-container {
             visibility: hidden;
-            min-width: 250px;
-            background-color: #ef4444; 
-            color: white;
+            min-width: 260px;
+            background-color: var(--dark-btn);
+            color: #ffffff;
             text-align: center;
-            border-radius: 8px;
-            padding: 14px 20px;
+            border-radius: var(--radius-md);
+            padding: 12px 20px;
             position: fixed;
             z-index: 1000;
             left: 50%;
-            top: 20px;
-            transform: translateX(-50%);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            bottom: 24px;
+            transform: translateX(-50%) translateY(10px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
             opacity: 0;
-            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
-            font-weight: bold;
+            transition: all 0.25s ease;
+            font-size: 0.88rem;
+            font-weight: 600;
         }
 
         #toast-container.show {
             visibility: visible;
             opacity: 1;
-            transform: translateX(-50%) translateY(10px);
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
@@ -421,144 +722,364 @@
 
     <div id="toast-container">メッセージ</div>
 
-    <div class="header">
-        <h1>議事録ヒーロー</h1>
-        <p>テキストを入力し、必要な項目を選ぶだけ。会議の疑問はAIアシスタントに直接質問できます。</p>
-    </div>
-
-    <div class="api-key-bar">
-        <div class="api-key-title">🔑 Gemini APIキー設定</div>
-        <div class="api-key-controls">
-            <input type="password" id="api-key-input" placeholder="AIzaSy... から始まるAPIキーを入力">
-            <button class="btn-key btn-save-key" onclick="saveApiKey()">ブラウザに保存</button>
-            <button class="btn-key btn-clear-key" onclick="clearApiKey()">削除</button>
-        </div>
-        <div class="api-key-status" id="api-key-status">
-            ※入力したキーはあなたのブラウザ内（この端末）にのみ保存され、GitHubや外部には公開されません。
-        </div>
-    </div>
-
-    <div class="container">
-        <!-- 左カラム -->
-        <div class="left-column">
-            <div class="card flex-grow-card">
-                <div class="card-header">📝 1. 会議の内容（文字起こし）を入力</div>
-                <textarea id="transcript-input" placeholder="ここに会議の文字起こしテキストやメモを貼り付けてください..."></textarea>
+    <!-- ヘッダー -->
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <div class="brand-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                </div>
+                <h1 class="brand-title">議事録ヒーロー</h1>
+                <span class="brand-sub">会議テキスト構造化・AIアシスタント</span>
             </div>
 
-            <div class="card">
-                <div class="card-header">⚙️ 2. まとめる項目を選択</div>
-                <div class="options-grid" id="options-container">
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-date" value="日付" checked><label for="opt-date">日付</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-name" value="参加者" checked><label for="opt-name">参加者</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-summary" value="要点" checked><label for="opt-summary">要点</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-decision" value="決定事項" checked><label for="opt-decision">決定事項</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-task" value="タスク" checked><label for="opt-task">タスク</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-important" value="重要事項" checked><label for="opt-important">重要事項</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-opinion" value="意見"><label for="opt-opinion">意見</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-issue" value="課題・懸念点" checked><label for="opt-issue">課題・懸念点</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-pending" value="保留事項" checked><label for="opt-pending">保留事項</label></div>
-                    <div class="checkbox-wrapper"><input type="checkbox" id="opt-next" value="次回予定" checked><label for="opt-next">次回予定</label></div>
-                </div>
+            <button class="api-toggle-btn" onclick="toggleApiDrawer()" id="api-toggle-btn">
+                <span class="status-dot" id="api-status-dot"></span>
+                <span id="api-status-label">APIキー設定</span>
+            </button>
+        </div>
+    </header>
 
-                <button class="btn-main" id="generate-btn" onclick="generateMinutes()">
-                    <span id="btn-text">🚀 議事録を作成する</span>
-                </button>
+    <!-- APIキー設定ドロワー -->
+    <div class="api-drawer" id="api-drawer">
+        <div class="api-drawer-inner">
+            <div class="api-drawer-info">
+                <strong>Gemini APIキー設定：</strong>入力したキーはお使いのブラウザ内（端末ローカル）にのみ保存され、外部へは送信されません。
+            </div>
+            <div class="api-drawer-form">
+                <input type="password" id="api-key-input" placeholder="AIzaSy... から始まるAPIキーを入力">
+                <button class="btn-sm btn-sm-accent" onclick="saveApiKey()">保存</button>
+                <button class="btn-sm" onclick="clearApiKey()">削除</button>
             </div>
         </div>
+    </div>
 
-        <!-- 右カラム -->
-        <div class="right-column">
-            <div class="card flex-grow-card">
-                <div class="card-header">
-                    <span>📄 3. 生成結果</span>
-                    <button class="btn-copy" onclick="copyToClipboard()" id="copy-btn">📋 コピーする</button>
-                </div>
-                
-                <div class="output-content" id="output-area">
-                    <div class="processing-overlay" id="processing-overlay">
-                        <div class="loader"></div>
-                        <div id="loading-status-text" style="color: var(--primary-color); font-weight: bold;">AIが分析・作成中です...</div>
+    <!-- メインコンテンツ -->
+    <main class="workspace">
+        <!-- 左カラム：入力と条件設定 -->
+        <div class="column">
+            <!-- STEP 1 -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-group">
+                        <span class="step-badge">STEP 1</span>
+                        <h2 class="panel-title">会議の内容（文字起こし）</h2>
                     </div>
-                    
-                    <div id="output-text">
-                        <div class="placeholder-text">
-                            項目を選択し、「議事録を作成する」をクリックすると<br>ここに結果が表示されます。
+                    <div class="meta-actions">
+                        <span id="char-count">0 文字</span>
+                        <button class="link-btn" onclick="clearTranscript()">クリア</button>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="textarea-wrapper">
+                        <textarea id="transcript-input" placeholder="会議の文字起こしテキストやメモをここに貼り付けてください..." oninput="updateCharCount()"></textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 2 -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-group">
+                        <span class="step-badge">STEP 2</span>
+                        <h2 class="panel-title">出力条件の設定</h2>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <!-- 1. 項目選択（初期はすべて未選択） -->
+                    <div class="setting-block">
+                        <div class="setting-label-row">
+                            <span class="setting-label">1. 抽出する項目を選択（必要なものだけ選択）</span>
+                            <div class="meta-actions">
+                                <button class="link-btn" onclick="toggleAllOptions(true)">すべて選択</button>
+                                <span>/</span>
+                                <button class="link-btn" onclick="toggleAllOptions(false)">解除</button>
+                            </div>
+                        </div>
+                        <div class="options-grid" id="options-container">
+                            <div class="chip-item"><input type="checkbox" id="opt-date" value="日付"><label for="opt-date"><span class="chip-check"></span>日付</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-name" value="参加者"><label for="opt-name"><span class="chip-check"></span>参加者</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-summary" value="要点"><label for="opt-summary"><span class="chip-check"></span>要点</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-decision" value="決定事項"><label for="opt-decision"><span class="chip-check"></span>決定事項</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-task" value="タスク"><label for="opt-task"><span class="chip-check"></span>タスク</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-important" value="重要事項"><label for="opt-important"><span class="chip-check"></span>重要事項</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-opinion" value="意見"><label for="opt-opinion"><span class="chip-check"></span>意見</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-issue" value="課題・懸念点"><label for="opt-issue"><span class="chip-check"></span>課題・懸念点</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-pending" value="保留事項"><label for="opt-pending"><span class="chip-check"></span>保留事項</label></div>
+                            <div class="chip-item"><input type="checkbox" id="opt-next" value="次回予定"><label for="opt-next"><span class="chip-check"></span>次回予定</label></div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 情報量バー（1〜10） -->
+                    <div class="setting-block">
+                        <div class="setting-label-row">
+                            <span class="setting-label">2. 生成する情報量（バーをクリックして選択）</span>
+                            <span class="volume-level-badge" id="volume-label">レベル 5 / 10（標準）</span>
+                        </div>
+                        <div class="volume-bar-container" id="volume-bar">
+                            <div class="volume-segment active" data-val="1">1</div>
+                            <div class="volume-segment active" data-val="2">2</div>
+                            <div class="volume-segment active" data-val="3">3</div>
+                            <div class="volume-segment active" data-val="4">4</div>
+                            <div class="volume-segment active" data-val="5">5</div>
+                            <div class="volume-segment" data-val="6">6</div>
+                            <div class="volume-segment" data-val="7">7</div>
+                            <div class="volume-segment" data-val="8">8</div>
+                            <div class="volume-segment" data-val="9">9</div>
+                            <div class="volume-segment" data-val="10">10</div>
+                        </div>
+                        <div class="volume-scale-hints">
+                            <span>1：超簡潔（要点のみ）</span>
+                            <span>5：標準</span>
+                            <span>10：詳細（経緯・発言も網羅）</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. AI自動強調スタイル -->
+                    <div class="setting-block">
+                        <div class="setting-label-row">
+                            <span class="setting-label">3. 重要箇所のAI自動強調</span>
+                        </div>
+                        <div class="highlight-presets">
+                            <div class="preset-radio">
+                                <input type="radio" name="ai-highlight" id="hl-none" value="none" checked>
+                                <label for="hl-none">なし（標準テキスト）</label>
+                            </div>
+                            <div class="preset-radio">
+                                <input type="radio" name="ai-highlight" id="hl-bold" value="bold">
+                                <label for="hl-bold"><strong>太字</strong></label>
+                            </div>
+                            <div class="preset-radio">
+                                <input type="radio" name="ai-highlight" id="hl-red" value="red">
+                                <label for="hl-red"><strong style="color:#dc2626;">太字＋赤文字</strong></label>
+                            </div>
+                            <div class="preset-radio">
+                                <input type="radio" name="ai-highlight" id="hl-blue" value="blue">
+                                <label for="hl-blue"><strong style="color:#2563eb;">太字＋青文字</strong></label>
+                            </div>
+                            <div class="preset-radio">
+                                <input type="radio" name="ai-highlight" id="hl-marker" value="marker">
+                                <label for="hl-marker"><strong style="background-color:#fef08a; padding:0 4px; border-radius:2px;">太字＋黄色マーカー</strong></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn-primary" id="generate-btn" onclick="generateMinutes()">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        <span id="btn-text">議事録を作成する</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- 右カラム：生成結果（装飾編集可能）とAI質問 -->
+        <div class="column">
+            <!-- STEP 3 -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-group">
+                        <span class="step-badge">STEP 3</span>
+                        <h2 class="panel-title">生成結果（選択して太字・色付け可能）</h2>
+                    </div>
+                    <button class="btn-sm" onclick="copyToClipboard()" id="copy-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <span>書式付きコピー</span>
+                    </button>
+                </div>
+
+                <!-- 手動装飾ツールバー -->
+                <div class="format-toolbar">
+                    <div class="toolbar-group">
+                        <span class="toolbar-caption">選択文字の装飾:</span>
+                        <button class="tool-btn" onmousedown="event.preventDefault()" onclick="applyTextBold()" title="太字にする">B</button>
+                    </div>
+
+                    <div class="toolbar-divider"></div>
+
+                    <div class="toolbar-group">
+                        <span class="toolbar-caption">文字色:</span>
+                        <button class="color-swatch" style="background-color: #0f172a;" onmousedown="event.preventDefault()" onclick="applyTextColor('#0f172a')" title="黒"></button>
+                        <button class="color-swatch" style="background-color: #dc2626;" onmousedown="event.preventDefault()" onclick="applyTextColor('#dc2626')" title="赤"></button>
+                        <button class="color-swatch" style="background-color: #2563eb;" onmousedown="event.preventDefault()" onclick="applyTextColor('#2563eb')" title="青"></button>
+                        <button class="color-swatch" style="background-color: #16a34a;" onmousedown="event.preventDefault()" onclick="applyTextColor('#16a34a')" title="緑"></button>
+                        <button class="color-swatch" style="background-color: #d97706;" onmousedown="event.preventDefault()" onclick="applyTextColor('#d97706')" title="オレンジ"></button>
+                    </div>
+
+                    <div class="toolbar-divider"></div>
+
+                    <div class="toolbar-group">
+                        <span class="toolbar-caption">マーカー:</span>
+                        <button class="marker-swatch" style="background-color: #fef08a;" onmousedown="event.preventDefault()" onclick="applyHighlightColor('#fef08a')">黄</button>
+                        <button class="marker-swatch" style="background-color: #fecdd3;" onmousedown="event.preventDefault()" onclick="applyHighlightColor('#fecdd3')">桃</button>
+                        <button class="marker-swatch" style="background-color: #bae6fd;" onmousedown="event.preventDefault()" onclick="applyHighlightColor('#bae6fd')">青</button>
+                        <button class="tool-btn" style="font-size:0.75rem; font-weight:500; color:#64748b;" onmousedown="event.preventDefault()" onclick="clearFormatting()" title="選択範囲の太字・色を解除">解除</button>
+                    </div>
+                </div>
+
+                <div class="output-wrapper">
+                    <div class="processing-overlay" id="processing-overlay">
+                        <div class="spinner"></div>
+                        <div id="loading-status-text" style="font-size: 0.9rem; font-weight: 600; color: var(--text-secondary);">AIが議事録を作成しています...</div>
+                    </div>
+
+                    <div id="output-text" contenteditable="true">
+                        <div class="placeholder-box" contenteditable="false">
+                            左側の「STEP 1」に文字起こしを入力し、「STEP 2」で抽出したい項目と情報量を選んで「議事録を作成する」を押してください。<br><br>
+                            生成されたテキストは、マウスで文字を選択して上のツールバーから自由に太字や色付けができます。
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="card">
-                <div class="card-header">
-                    <span>💬 4. 会議AIアシスタントに質問</span>
-                </div>
-                <p style="font-size: 0.9rem; color: #64748b; margin-top: 0;">会議の背景や詳細について、AIに直接質問できます。</p>
-                <div class="qa-box">
-                    <div class="qa-input-group">
-                        <input type="text" id="qa-input" placeholder="例：決定事項を3行で教えて / 誰がどのタスクを担当する？" onkeypress="handleEnter(event)">
-                        <button class="btn-search" id="search-btn" onclick="askQuestion()">検索</button>
+            <!-- STEP 4 -->
+            <section class="panel">
+                <div class="panel-header">
+                    <div class="panel-title-group">
+                        <span class="step-badge">STEP 4</span>
+                        <h2 class="panel-title">会議内容についてAIに質問</h2>
                     </div>
-                    <div class="qa-answer" id="qa-answer"></div>
                 </div>
-            </div>
+                <div class="panel-body">
+                    <div class="qa-input-row">
+                        <input type="text" id="qa-input" placeholder="例：決定事項を3行で教えて / 誰がどのタスクを担当する？" onkeypress="handleEnter(event)">
+                        <button class="btn-sm btn-sm-accent" style="padding: 0 18px;" id="search-btn" onclick="askQuestion()">質問する</button>
+                    </div>
+                    <div class="qa-answer-box" id="qa-answer"></div>
+                </div>
+            </section>
         </div>
-    </div>
+    </main>
 
     <script type="module">
         import { GoogleGenAI } from 'https://esm.run/@google/genai';
 
         const STORAGE_KEY = 'gijiroku_hero_gemini_key';
-        // 混雑（503エラー）時に順番に試すモデル一覧
         const FALLBACK_MODELS = [
             'gemini-3.8-flash',
             'gemini-3.5-flash-lite',
             'gemini-3.7-flash'
         ];
 
+        let selectedVolume = 5;
+        let isDraggingVolume = false;
+
+        // 初期化処理
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem(STORAGE_KEY);
             if (savedKey) {
                 document.getElementById('api-key-input').value = savedKey;
                 updateKeyStatus(true);
+            } else {
+                updateKeyStatus(false);
+                // 未設定時は入力欄を開いておく
+                document.getElementById('api-drawer').classList.add('open');
             }
+            initVolumeBar();
         });
 
-        function updateKeyStatus(isSaved) {
-            const statusEl = document.getElementById('api-key-status');
-            if (isSaved) {
-                statusEl.innerHTML = '✅ <b>APIキーがブラウザに保存されています。</b>すぐにAI機能を使えます。';
-                statusEl.style.color = '#166534';
+        // チェックボックスのカスタムチェックマーク描画更新
+        document.querySelectorAll('#options-container input[type="checkbox"]').forEach(cb => {
+            cb.addEventListener('change', () => updateCheckboxVisual(cb));
+        });
+
+        function updateCheckboxVisual(cb) {
+            const checkBox = cb.nextElementSibling.querySelector('.chip-check');
+            if (cb.checked) {
+                checkBox.innerHTML = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
             } else {
-                statusEl.innerHTML = '※入力したキーはあなたのブラウザ内（この端末）にのみ保存され、GitHubや外部には公開されません。';
-                statusEl.style.color = '#64748b';
+                checkBox.innerHTML = '';
             }
         }
 
-        function showToast(message, isSuccess = false) {
-            const toast = document.getElementById("toast-container");
-            toast.innerText = message;
-            toast.style.backgroundColor = isSuccess ? '#16a34a' : '#ef4444';
-            toast.classList.add("show");
-            setTimeout(() => toast.classList.remove("show"), 3000);
+        window.toggleAllOptions = function(selectAll) {
+            document.querySelectorAll('#options-container input[type="checkbox"]').forEach(cb => {
+                cb.checked = selectAll;
+                updateCheckboxVisual(cb);
+            });
+        };
+
+        // 1〜10 棒状クリックゲージの初期化
+        function initVolumeBar() {
+            const segments = document.querySelectorAll('.volume-segment');
+            segments.forEach(seg => {
+                seg.addEventListener('mousedown', (e) => {
+                    isDraggingVolume = true;
+                    setVolumeLevel(parseInt(seg.dataset.val, 10));
+                });
+                seg.addEventListener('mouseenter', () => {
+                    if (isDraggingVolume) {
+                        setVolumeLevel(parseInt(seg.dataset.val, 10));
+                    }
+                });
+                seg.addEventListener('click', () => {
+                    setVolumeLevel(parseInt(seg.dataset.val, 10));
+                });
+            });
+            window.addEventListener('mouseup', () => {
+                isDraggingVolume = false;
+            });
+        }
+
+        function setVolumeLevel(level) {
+            selectedVolume = level;
+            document.querySelectorAll('.volume-segment').forEach(seg => {
+                const val = parseInt(seg.dataset.val, 10);
+                if (val <= level) {
+                    seg.classList.add('active');
+                } else {
+                    seg.classList.remove('active');
+                }
+            });
+
+            const descriptions = {
+                1: '超簡潔・最小限',
+                2: 'かなり簡潔',
+                3: '簡潔・要点中心',
+                4: 'やや簡潔',
+                5: '標準',
+                6: 'やや詳細',
+                7: '詳細め',
+                8: '詳細・背景込み',
+                9: 'かなり詳細',
+                10: '最大・発言や経緯も網羅'
+            };
+            document.getElementById('volume-label').innerText = `レベル ${level} / 10（${descriptions[level]}）`;
+        }
+
+        // APIキードロワー開閉と保存
+        window.toggleApiDrawer = function() {
+            document.getElementById('api-drawer').classList.toggle('open');
+        };
+
+        function updateKeyStatus(isSaved) {
+            const dot = document.getElementById('api-status-dot');
+            const label = document.getElementById('api-status-label');
+            if (isSaved) {
+                dot.classList.add('connected');
+                label.innerText = 'API接続済み';
+            } else {
+                dot.classList.remove('connected');
+                label.innerText = 'APIキー設定（未設定）';
+            }
         }
 
         window.saveApiKey = function() {
             const key = document.getElementById('api-key-input').value.trim();
             if (!key) {
-                showToast("APIキーを入力してから保存ボタンを押してください。");
+                showToast("APIキーを入力してから保存してください。");
                 return;
             }
             localStorage.setItem(STORAGE_KEY, key);
             updateKeyStatus(true);
-            showToast("APIキーをこのブラウザに安全に保存しました！", true);
+            document.getElementById('api-drawer').classList.remove('open');
+            showToast("APIキーをブラウザに保存しました。");
         };
 
         window.clearApiKey = function() {
             localStorage.removeItem(STORAGE_KEY);
             document.getElementById('api-key-input').value = '';
             updateKeyStatus(false);
-            showToast("ブラウザからAPIキーを削除しました。", true);
+            showToast("保存されていたAPIキーを削除しました。");
         };
 
         function getApiKey() {
@@ -567,7 +1088,88 @@
             return localStorage.getItem(STORAGE_KEY) || '';
         }
 
-        // 混雑時に自動で別モデルに切り替えて再試行する共通関数
+        window.updateCharCount = function() {
+            const len = document.getElementById('transcript-input').value.length;
+            document.getElementById('char-count').innerText = `${len.toLocaleString()} 文字`;
+        };
+
+        window.clearTranscript = function() {
+            document.getElementById('transcript-input').value = '';
+            updateCharCount();
+        };
+
+        function showToast(message) {
+            const toast = document.getElementById("toast-container");
+            toast.innerText = message;
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        // テキスト選択チェックと装飾ツールバー処理
+        function hasValidOutputSelection() {
+            const outputEl = document.getElementById('output-text');
+            if (outputEl.querySelector('.placeholder-box')) {
+                showToast("先に議事録を作成してください。");
+                return false;
+            }
+            const sel = window.getSelection();
+            if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+                showToast("装飾したい文字をドラッグして選択してください。");
+                return false;
+            }
+            const range = sel.getRangeAt(0);
+            if (!outputEl.contains(range.commonAncestorContainer)) {
+                showToast("生成結果エリア内の文字を選択してください。");
+                return false;
+            }
+            return true;
+        }
+
+        window.applyTextBold = function() {
+            if (!hasValidOutputSelection()) return;
+            document.execCommand('bold', false, null);
+        };
+
+        window.applyTextColor = function(color) {
+            if (!hasValidOutputSelection()) return;
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('foreColor', false, color);
+        };
+
+        window.applyHighlightColor = function(bgColor) {
+            if (!hasValidOutputSelection()) return;
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('hiliteColor', false, bgColor);
+        };
+
+        window.clearFormatting = function() {
+            if (!hasValidOutputSelection()) return;
+            document.execCommand('removeFormat', false, null);
+        };
+
+        // 安全なHTMLエスケープ＋AI自動強調（**重要箇所**）の変換
+        function renderFormattedOutput(rawText, highlightMode) {
+            const escaped = rawText
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            if (highlightMode === 'none') {
+                return escaped.replace(/\*\*(.+?)\*\*/g, '$1');
+            }
+
+            const styleMap = {
+                bold: 'font-weight: 700;',
+                red: 'font-weight: 700; color: #dc2626;',
+                blue: 'font-weight: 700; color: #2563eb;',
+                marker: 'font-weight: 700; background-color: #fef08a; padding: 0 3px; border-radius: 3px;'
+            };
+            const appliedStyle = styleMap[highlightMode] || 'font-weight: 700;';
+
+            return escaped.replace(/\*\*(.+?)\*\*/g, `<span style="${appliedStyle}">$1</span>`);
+        }
+
+        // 混雑時自動切り替え付きAPI呼び出し
         async function callGeminiWithFallback(apiKey, prompt, onRetryCallback) {
             const ai = new GoogleGenAI({ apiKey: apiKey });
             let lastError = null;
@@ -583,7 +1185,6 @@
                 } catch (error) {
                     lastError = error;
                     const errMsg = error.message || '';
-                    // サーバー混雑（503）や一時的なエラーの場合は次のモデルへ自動切り替え
                     if (errMsg.includes('503') || errMsg.includes('UNAVAILABLE') || errMsg.includes('overloaded') || errMsg.includes('429')) {
                         if (i < FALLBACK_MODELS.length - 1) {
                             if (onRetryCallback) onRetryCallback(i + 1);
@@ -591,7 +1192,6 @@
                             continue;
                         }
                     } else {
-                        // APIキー自体の間違い（400/403）などの場合は即座にエラーを出す
                         throw error;
                     }
                 }
@@ -599,26 +1199,27 @@
             throw lastError;
         }
 
-        // エラー内容を分かりやすい日本語に翻訳して表示する関数
         function formatFriendlyError(error) {
             const msg = error.message || '';
             if (msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('overloaded')) {
-                return `<span style="color: #d97706; font-weight: bold;">⏳ 現在GoogleのAIサーバーが大変混雑しています</span><br>APIキーの設定は問題ありません。1〜2分ほど時間を置いてから、もう一度ボタンを押してください。`;
+                return `<span style="color: #d97706; font-weight: bold;">現在GoogleのAIサーバーが混雑しています</span><br>1〜2分ほど時間を置いてから、もう一度お試しください。`;
             }
             if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
-                return `<span style="color: #d97706; font-weight: bold;">⏳ 短時間の利用回数上限に達しました</span><br>1分ほど待ってから、もう一度ボタンを押してください。`;
+                return `<span style="color: #d97706; font-weight: bold;">短時間の利用回数上限に達しました</span><br>1分ほど待ってから再度お試しください。`;
             }
             if (msg.includes('400') || msg.includes('403') || msg.includes('API_KEY_INVALID')) {
-                return `<span style="color: #dc2626; font-weight: bold;">🔑 APIキーが正しく認識されませんでした</span><br>前後に余分なスペースが入っていないか確認し、再度保存してください。`;
+                return `<span style="color: #dc2626; font-weight: bold;">APIキーが正しく認識されませんでした</span><br>右上の「APIキー設定」から正しいキーが保存されているか確認してください。`;
             }
             return `<span style="color: #dc2626; font-weight: bold;">エラーが発生しました：</span><br><small style="color:#64748b;">${msg}</small>`;
         }
 
+        // 議事録の生成
         window.generateMinutes = async function() {
             const apiKey = getApiKey();
             if (!apiKey) {
-                showToast("先に画面上部の枠に「Gemini APIキー」を入力してください。");
+                document.getElementById('api-drawer').classList.add('open');
                 document.getElementById('api-key-input').focus();
+                showToast("先に「Gemini APIキー」を設定してください。");
                 return;
             }
 
@@ -630,11 +1231,13 @@
 
             const checkboxes = document.querySelectorAll('#options-container input[type="checkbox"]:checked');
             if (checkboxes.length === 0) {
-                showToast("少なくとも1つの項目を選択してください。");
+                showToast("抽出する項目を1つ以上選択してください。");
                 return;
             }
 
             const selectedOptions = Array.from(checkboxes).map(cb => cb.value).join("、");
+            const highlightMode = document.querySelector('input[name="ai-highlight"]:checked').value;
+
             const btn = document.getElementById('generate-btn');
             const btnText = document.getElementById('btn-text');
             const overlay = document.getElementById('processing-overlay');
@@ -642,14 +1245,36 @@
             const outputText = document.getElementById('output-text');
 
             btn.disabled = true;
-            btnText.innerText = '⏳ AIが作成中です...';
-            loadingText.innerText = 'AIが分析・作成中です...';
+            btnText.innerText = '作成中...';
+            loadingText.innerText = 'AIが議事録を作成しています...';
             overlay.style.display = 'flex';
-            document.getElementById('copy-btn').innerText = '📋 コピーする';
+
+            // 情報量レベル（1〜10）に応じた指示文の調整
+            let volumeInstruction = '';
+            if (selectedVolume <= 2) {
+                volumeInstruction = `情報量レベル ${selectedVolume}/10（超簡潔）：各項目につき最も重要な1〜2点のみを短い体言止め・1行の箇条書きで端的に記載してください。補足や経緯はすべて省いてください。`;
+            } else if (selectedVolume <= 4) {
+                volumeInstruction = `情報量レベル ${selectedVolume}/10（簡潔）：各項目につき要点を絞り、簡潔な箇条書きでまとめてください。冗長な説明は省いてください。`;
+            } else if (selectedVolume <= 6) {
+                volumeInstruction = `情報量レベル ${selectedVolume}/10（標準）：一般的なビジネス議事録として過不足のない標準的な分量・詳細度で箇条書きにまとめてください。`;
+            } else if (selectedVolume <= 8) {
+                volumeInstruction = `情報量レベル ${selectedVolume}/10（詳細）：結論だけでなく、議論の背景・理由・具体的な数値・担当者や期限などの詳細情報も含めて丁寧に記述してください。`;
+            } else {
+                volumeInstruction = `情報量レベル ${selectedVolume}/10（最大詳細）：会議テキストに含まれる重要な発言のニュアンス、判断に至った経緯、懸念の背景、具体的な条件や数値を省略せず網羅的に詳しく記述してください。`;
+            }
+
+            const highlightInstruction = highlightMode !== 'none'
+                ? 'また、特に重要な決定事項・期限・数値・リスクなどの核心となる語句やフレーズは、必ず **重要語句** のようにアスタリスク2つで囲んで強調してください（見出しの【項目名】は囲まないでください）。'
+                : 'アスタリスク（**）などのマークダウン記号は使わず、プレーンなテキストで出力してください。';
 
             const prompt = `
-以下の会議の文字起こしテキストを元に、指定された項目を抽出・要約して議事録を作成してください。
-フォーマットは【項目名】で見出しを作り、その下に箇条書きで分かりやすく記載してください。テキスト内に情報がない項目は「（該当なし）」と記載してください。
+以下の会議の文字起こしテキストを元に、指定された項目だけを抽出して議事録を作成してください。
+
+【出力ルール】
+・見出しは必ず「【項目名】」の形式にし、その下に「・」を使った箇条書きで記載してください。
+・テキスト内に該当情報がない項目は「・（該当なし）」と記載してください。
+・${volumeInstruction}
+・${highlightInstruction}
 
 指定された項目: ${selectedOptions}
 
@@ -661,22 +1286,23 @@ ${transcript}
                 const result = await callGeminiWithFallback(apiKey, prompt, (retryCount) => {
                     loadingText.innerText = `サーバー混雑のため別ルートで再試行中 (${retryCount}回目)...`;
                 });
-                outputText.innerText = result;
+                outputText.innerHTML = renderFormattedOutput(result, highlightMode);
             } catch (error) {
                 console.error(error);
                 outputText.innerHTML = formatFriendlyError(error);
             } finally {
                 btn.disabled = false;
-                btnText.innerText = '🚀 議事録を作成する';
+                btnText.innerText = '議事録を作成する';
                 overlay.style.display = 'none';
             }
         };
 
+        // 会議内容への質問
         window.askQuestion = async function() {
             const apiKey = getApiKey();
             if (!apiKey) {
-                showToast("先に画面上部の枠に「Gemini APIキー」を入力してください。");
-                document.getElementById('api-key-input').focus();
+                document.getElementById('api-drawer').classList.add('open');
+                showToast("先に「Gemini APIキー」を設定してください。");
                 return;
             }
 
@@ -693,7 +1319,7 @@ ${transcript}
             const answerBox = document.getElementById('qa-answer');
 
             searchBtn.disabled = true;
-            searchBtn.innerText = '検索中...';
+            searchBtn.innerText = '回答作成中...';
             answerBox.style.display = 'none';
 
             const prompt = `
@@ -710,7 +1336,8 @@ ${transcript}
                 const result = await callGeminiWithFallback(apiKey, prompt, () => {
                     searchBtn.innerText = '再試行中...';
                 });
-                answerBox.innerText = result;
+                const escaped = result.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                answerBox.innerHTML = `<span class="qa-answer-label">AIアシスタントの回答</span>${escaped}`;
                 answerBox.style.display = 'block';
             } catch (error) {
                 console.error(error);
@@ -718,7 +1345,7 @@ ${transcript}
                 answerBox.style.display = 'block';
             } finally {
                 searchBtn.disabled = false;
-                searchBtn.innerText = '検索';
+                searchBtn.innerText = '質問する';
             }
         };
 
@@ -728,48 +1355,49 @@ ${transcript}
             }
         };
 
-        window.copyToClipboard = function() {
-            const outputText = document.getElementById('output-text').innerText;
-            const copyBtn = document.getElementById('copy-btn');
-            
-            if (!outputText || outputText.includes("項目を選択し")) {
+        // 書式付き（HTML＋テキスト）クリップボードコピー
+        window.copyToClipboard = async function() {
+            const outputEl = document.getElementById('output-text');
+            if (outputEl.querySelector('.placeholder-box')) {
                 showToast("コピーする議事録がありません。");
                 return;
             }
 
-            const onSuccess = () => {
-                copyBtn.innerText = '✅ コピーしました！';
-                copyBtn.style.backgroundColor = '#dcfce3';
-                copyBtn.style.color = '#166534';
-                setTimeout(() => {
-                    copyBtn.innerText = '📋 コピーする';
-                    copyBtn.style.backgroundColor = '#e2e8f0';
-                    copyBtn.style.color = '#475569';
-                }, 3000);
-            };
+            const htmlContent = outputEl.innerHTML;
+            const plainText = outputEl.innerText;
 
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(outputText).then(onSuccess).catch(() => fallbackCopy(outputText, onSuccess));
-            } else {
-                fallbackCopy(outputText, onSuccess);
+            try {
+                if (navigator.clipboard && window.ClipboardItem) {
+                    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
+                    const textBlob = new Blob([plainText], { type: 'text/plain' });
+                    await navigator.clipboard.write([
+                        new ClipboardItem({
+                            'text/html': htmlBlob,
+                            'text/plain': textBlob
+                        })
+                    ]);
+                    showToast("太字・色付けを含めてクリップボードにコピーしました！");
+                    return;
+                }
+            } catch (err) {
+                // フォールバックへ進む
             }
-        };
 
-        function fallbackCopy(text, onSuccess) {
+            // テキストのみのフォールバックコピー
             const textarea = document.createElement('textarea');
-            textarea.value = text;
+            textarea.value = plainText;
             textarea.style.position = 'fixed';
             textarea.style.opacity = '0';
             document.body.appendChild(textarea);
             textarea.select();
             try {
                 document.execCommand('copy');
-                onSuccess();
-            } catch (err) {
+                showToast("議事録をクリップボードにコピーしました！");
+            } catch (e) {
                 showToast("コピーに失敗しました。");
             }
             document.body.removeChild(textarea);
-        }
+        };
     </script>
 </body>
 </html>
