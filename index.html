@@ -38,7 +38,6 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* トップナビゲーションバー */
         .topbar {
             background-color: var(--bg-surface);
             border-bottom: 1px solid var(--border-light);
@@ -94,7 +93,6 @@
             .brand-sub { display: none; }
         }
 
-        /* APIキー設定ボタン＆ドロワー */
         .api-toggle-btn {
             display: inline-flex;
             align-items: center;
@@ -174,7 +172,6 @@
             border-color: var(--accent-primary);
         }
 
-        /* メインワークスペース */
         .workspace {
             max-width: 1440px;
             margin: 24px auto;
@@ -242,7 +239,6 @@
             padding: 20px;
         }
 
-        /* テキスト入力エリア */
         .textarea-wrapper {
             position: relative;
         }
@@ -291,7 +287,6 @@
             text-decoration: underline;
         }
 
-        /* セクション区切り */
         .setting-block {
             margin-bottom: 22px;
         }
@@ -313,7 +308,6 @@
             color: var(--text-secondary);
         }
 
-        /* 項目選択チップ（初期はすべて未選択） */
         .options-grid {
             display: flex;
             flex-wrap: wrap;
@@ -369,7 +363,6 @@
             border-color: var(--accent-primary);
         }
 
-        /* 情報量 1〜10 棒状クリックゲージ */
         .volume-level-badge {
             font-size: 0.8rem;
             font-weight: 700;
@@ -429,7 +422,6 @@
             margin-top: 5px;
         }
 
-        /* AI自動強調スタイル選択 */
         .highlight-presets {
             display: flex;
             flex-wrap: wrap;
@@ -461,7 +453,6 @@
             font-weight: 700;
         }
 
-        /* メインボタン */
         .btn-primary {
             width: 100%;
             padding: 13px 20px;
@@ -517,7 +508,6 @@
             background-color: var(--accent-hover);
         }
 
-        /* リッチテキスト装飾ツールバー（生成結果用） */
         .format-toolbar {
             padding: 8px 16px;
             background-color: var(--bg-subtle);
@@ -595,7 +585,6 @@
             opacity: 0.85;
         }
 
-        /* 生成結果エリア（編集・装飾可能） */
         .output-wrapper {
             position: relative;
         }
@@ -649,7 +638,6 @@
             to { transform: rotate(360deg); }
         }
 
-        /* AI質問エリア */
         .qa-input-row {
             display: flex;
             gap: 8px;
@@ -690,7 +678,6 @@
             display: block;
         }
 
-        /* トースト通知 */
         #toast-container {
             visibility: hidden;
             min-width: 260px;
@@ -722,7 +709,6 @@
 
     <div id="toast-container">メッセージ</div>
 
-    <!-- ヘッダー -->
     <header class="topbar">
         <div class="topbar-inner">
             <div class="brand">
@@ -740,7 +726,6 @@
         </div>
     </header>
 
-    <!-- APIキー設定ドロワー -->
     <div class="api-drawer" id="api-drawer">
         <div class="api-drawer-inner">
             <div class="api-drawer-info">
@@ -754,11 +739,8 @@
         </div>
     </div>
 
-    <!-- メインコンテンツ -->
     <main class="workspace">
-        <!-- 左カラム：入力と条件設定 -->
         <div class="column">
-            <!-- STEP 1 -->
             <section class="panel">
                 <div class="panel-header">
                     <div class="panel-title-group">
@@ -777,7 +759,6 @@
                 </div>
             </section>
 
-            <!-- STEP 2 -->
             <section class="panel">
                 <div class="panel-header">
                     <div class="panel-title-group">
@@ -786,7 +767,6 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    <!-- 1. 項目選択（初期はすべて未選択） -->
                     <div class="setting-block">
                         <div class="setting-label-row">
                             <span class="setting-label">1. 抽出する項目を選択（必要なものだけ選択）</span>
@@ -810,7 +790,6 @@
                         </div>
                     </div>
 
-                    <!-- 2. 情報量バー（1〜10） -->
                     <div class="setting-block">
                         <div class="setting-label-row">
                             <span class="setting-label">2. 生成する情報量（バーをクリックして選択）</span>
@@ -835,7 +814,6 @@
                         </div>
                     </div>
 
-                    <!-- 3. AI自動強調スタイル -->
                     <div class="setting-block">
                         <div class="setting-label-row">
                             <span class="setting-label">3. 重要箇所のAI自動強調</span>
@@ -872,9 +850,7 @@
             </section>
         </div>
 
-        <!-- 右カラム：生成結果（装飾編集可能）とAI質問 -->
         <div class="column">
-            <!-- STEP 3 -->
             <section class="panel">
                 <div class="panel-header">
                     <div class="panel-title-group">
@@ -887,7 +863,6 @@
                     </button>
                 </div>
 
-                <!-- 手動装飾ツールバー -->
                 <div class="format-toolbar">
                     <div class="toolbar-group">
                         <span class="toolbar-caption">選択文字の装飾:</span>
@@ -931,7 +906,6 @@
                 </div>
             </section>
 
-            <!-- STEP 4 -->
             <section class="panel">
                 <div class="panel-header">
                     <div class="panel-title-group">
@@ -954,16 +928,15 @@
         import { GoogleGenAI } from 'https://esm.run/@google/genai';
 
         const STORAGE_KEY = 'gijiroku_hero_gemini_key';
+        // 無料枠の上限が広い軽量モデルを最初に優先して使う設定
         const FALLBACK_MODELS = [
-            'gemini-3.8-flash',
             'gemini-3.5-flash-lite',
-            'gemini-3.7-flash'
+            'gemini-3.8-flash'
         ];
 
         let selectedVolume = 5;
         let isDraggingVolume = false;
 
-        // 初期化処理
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem(STORAGE_KEY);
             if (savedKey) {
@@ -971,13 +944,11 @@
                 updateKeyStatus(true);
             } else {
                 updateKeyStatus(false);
-                // 未設定時は入力欄を開いておく
                 document.getElementById('api-drawer').classList.add('open');
             }
             initVolumeBar();
         });
 
-        // チェックボックスのカスタムチェックマーク描画更新
         document.querySelectorAll('#options-container input[type="checkbox"]').forEach(cb => {
             cb.addEventListener('change', () => updateCheckboxVisual(cb));
         });
@@ -998,11 +969,10 @@
             });
         };
 
-        // 1〜10 棒状クリックゲージの初期化
         function initVolumeBar() {
             const segments = document.querySelectorAll('.volume-segment');
             segments.forEach(seg => {
-                seg.addEventListener('mousedown', (e) => {
+                seg.addEventListener('mousedown', () => {
                     isDraggingVolume = true;
                     setVolumeLevel(parseInt(seg.dataset.val, 10));
                 });
@@ -1046,7 +1016,6 @@
             document.getElementById('volume-label').innerText = `レベル ${level} / 10（${descriptions[level]}）`;
         }
 
-        // APIキードロワー開閉と保存
         window.toggleApiDrawer = function() {
             document.getElementById('api-drawer').classList.toggle('open');
         };
@@ -1105,7 +1074,6 @@
             setTimeout(() => toast.classList.remove("show"), 3000);
         }
 
-        // テキスト選択チェックと装飾ツールバー処理
         function hasValidOutputSelection() {
             const outputEl = document.getElementById('output-text');
             if (outputEl.querySelector('.placeholder-box')) {
@@ -1147,7 +1115,6 @@
             document.execCommand('removeFormat', false, null);
         };
 
-        // 安全なHTMLエスケープ＋AI自動強調（**重要箇所**）の変換
         function renderFormattedOutput(rawText, highlightMode) {
             const escaped = rawText
                 .replace(/&/g, '&amp;')
@@ -1169,7 +1136,6 @@
             return escaped.replace(/\*\*(.+?)\*\*/g, `<span style="${appliedStyle}">$1</span>`);
         }
 
-        // 混雑時自動切り替え付きAPI呼び出し
         async function callGeminiWithFallback(apiKey, prompt, onRetryCallback) {
             const ai = new GoogleGenAI({ apiKey: apiKey });
             let lastError = null;
@@ -1185,15 +1151,15 @@
                 } catch (error) {
                     lastError = error;
                     const errMsg = error.message || '';
-                    if (errMsg.includes('503') || errMsg.includes('UNAVAILABLE') || errMsg.includes('overloaded') || errMsg.includes('429')) {
+                    // サーバー混雑（503）のときだけ別モデルへ自動切り替え（429回数制限時は無駄な連打を防ぐ）
+                    if (errMsg.includes('503') || errMsg.includes('UNAVAILABLE') || errMsg.includes('overloaded')) {
                         if (i < FALLBACK_MODELS.length - 1) {
                             if (onRetryCallback) onRetryCallback(i + 1);
-                            await new Promise(resolve => setTimeout(resolve, 1500));
+                            await new Promise(resolve => setTimeout(resolve, 1000));
                             continue;
                         }
-                    } else {
-                        throw error;
                     }
+                    throw error;
                 }
             }
             throw lastError;
@@ -1201,11 +1167,11 @@
 
         function formatFriendlyError(error) {
             const msg = error.message || '';
+            if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('quota')) {
+                return `<span style="color: #d97706; font-weight: bold;">無料枠の連続利用回数上限に達しました</span><br>Googleの無料プランでは1分間に使える回数が制限されています。<b>60秒ほど待ってから</b>もう一度ボタンを押してください。（数時間経っても同じ表示が出る場合は1日の上限に達しているため、翌日にリセットされます）`;
+            }
             if (msg.includes('503') || msg.includes('UNAVAILABLE') || msg.includes('overloaded')) {
                 return `<span style="color: #d97706; font-weight: bold;">現在GoogleのAIサーバーが混雑しています</span><br>1〜2分ほど時間を置いてから、もう一度お試しください。`;
-            }
-            if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
-                return `<span style="color: #d97706; font-weight: bold;">短時間の利用回数上限に達しました</span><br>1分ほど待ってから再度お試しください。`;
             }
             if (msg.includes('400') || msg.includes('403') || msg.includes('API_KEY_INVALID')) {
                 return `<span style="color: #dc2626; font-weight: bold;">APIキーが正しく認識されませんでした</span><br>右上の「APIキー設定」から正しいキーが保存されているか確認してください。`;
@@ -1213,7 +1179,6 @@
             return `<span style="color: #dc2626; font-weight: bold;">エラーが発生しました：</span><br><small style="color:#64748b;">${msg}</small>`;
         }
 
-        // 議事録の生成
         window.generateMinutes = async function() {
             const apiKey = getApiKey();
             if (!apiKey) {
@@ -1231,173 +1196,4 @@
 
             const checkboxes = document.querySelectorAll('#options-container input[type="checkbox"]:checked');
             if (checkboxes.length === 0) {
-                showToast("抽出する項目を1つ以上選択してください。");
-                return;
-            }
-
-            const selectedOptions = Array.from(checkboxes).map(cb => cb.value).join("、");
-            const highlightMode = document.querySelector('input[name="ai-highlight"]:checked').value;
-
-            const btn = document.getElementById('generate-btn');
-            const btnText = document.getElementById('btn-text');
-            const overlay = document.getElementById('processing-overlay');
-            const loadingText = document.getElementById('loading-status-text');
-            const outputText = document.getElementById('output-text');
-
-            btn.disabled = true;
-            btnText.innerText = '作成中...';
-            loadingText.innerText = 'AIが議事録を作成しています...';
-            overlay.style.display = 'flex';
-
-            // 情報量レベル（1〜10）に応じた指示文の調整
-            let volumeInstruction = '';
-            if (selectedVolume <= 2) {
-                volumeInstruction = `情報量レベル ${selectedVolume}/10（超簡潔）：各項目につき最も重要な1〜2点のみを短い体言止め・1行の箇条書きで端的に記載してください。補足や経緯はすべて省いてください。`;
-            } else if (selectedVolume <= 4) {
-                volumeInstruction = `情報量レベル ${selectedVolume}/10（簡潔）：各項目につき要点を絞り、簡潔な箇条書きでまとめてください。冗長な説明は省いてください。`;
-            } else if (selectedVolume <= 6) {
-                volumeInstruction = `情報量レベル ${selectedVolume}/10（標準）：一般的なビジネス議事録として過不足のない標準的な分量・詳細度で箇条書きにまとめてください。`;
-            } else if (selectedVolume <= 8) {
-                volumeInstruction = `情報量レベル ${selectedVolume}/10（詳細）：結論だけでなく、議論の背景・理由・具体的な数値・担当者や期限などの詳細情報も含めて丁寧に記述してください。`;
-            } else {
-                volumeInstruction = `情報量レベル ${selectedVolume}/10（最大詳細）：会議テキストに含まれる重要な発言のニュアンス、判断に至った経緯、懸念の背景、具体的な条件や数値を省略せず網羅的に詳しく記述してください。`;
-            }
-
-            const highlightInstruction = highlightMode !== 'none'
-                ? 'また、特に重要な決定事項・期限・数値・リスクなどの核心となる語句やフレーズは、必ず **重要語句** のようにアスタリスク2つで囲んで強調してください（見出しの【項目名】は囲まないでください）。'
-                : 'アスタリスク（**）などのマークダウン記号は使わず、プレーンなテキストで出力してください。';
-
-            const prompt = `
-以下の会議の文字起こしテキストを元に、指定された項目だけを抽出して議事録を作成してください。
-
-【出力ルール】
-・見出しは必ず「【項目名】」の形式にし、その下に「・」を使った箇条書きで記載してください。
-・テキスト内に該当情報がない項目は「・（該当なし）」と記載してください。
-・${volumeInstruction}
-・${highlightInstruction}
-
-指定された項目: ${selectedOptions}
-
-会議のテキスト:
-${transcript}
-`;
-
-            try {
-                const result = await callGeminiWithFallback(apiKey, prompt, (retryCount) => {
-                    loadingText.innerText = `サーバー混雑のため別ルートで再試行中 (${retryCount}回目)...`;
-                });
-                outputText.innerHTML = renderFormattedOutput(result, highlightMode);
-            } catch (error) {
-                console.error(error);
-                outputText.innerHTML = formatFriendlyError(error);
-            } finally {
-                btn.disabled = false;
-                btnText.innerText = '議事録を作成する';
-                overlay.style.display = 'none';
-            }
-        };
-
-        // 会議内容への質問
-        window.askQuestion = async function() {
-            const apiKey = getApiKey();
-            if (!apiKey) {
-                document.getElementById('api-drawer').classList.add('open');
-                showToast("先に「Gemini APIキー」を設定してください。");
-                return;
-            }
-
-            const transcript = document.getElementById('transcript-input').value.trim();
-            if (!transcript) {
-                showToast("先に会議の内容（文字起こし）を入力してください。");
-                return;
-            }
-
-            const question = document.getElementById('qa-input').value.trim();
-            if (!question) return;
-
-            const searchBtn = document.getElementById('search-btn');
-            const answerBox = document.getElementById('qa-answer');
-
-            searchBtn.disabled = true;
-            searchBtn.innerText = '回答作成中...';
-            answerBox.style.display = 'none';
-
-            const prompt = `
-以下の会議テキストの内容に基づいて、質問に分かりやすく答えてください。
-会議テキストに記載がない場合は「その情報はこの会議記録には含まれていません」と答えてください。
-
-会議テキスト:
-${transcript}
-
-質問: ${question}
-`;
-
-            try {
-                const result = await callGeminiWithFallback(apiKey, prompt, () => {
-                    searchBtn.innerText = '再試行中...';
-                });
-                const escaped = result.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                answerBox.innerHTML = `<span class="qa-answer-label">AIアシスタントの回答</span>${escaped}`;
-                answerBox.style.display = 'block';
-            } catch (error) {
-                console.error(error);
-                answerBox.innerHTML = formatFriendlyError(error);
-                answerBox.style.display = 'block';
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.innerText = '質問する';
-            }
-        };
-
-        window.handleEnter = function(event) {
-            if (event.key === 'Enter') {
-                window.askQuestion();
-            }
-        };
-
-        // 書式付き（HTML＋テキスト）クリップボードコピー
-        window.copyToClipboard = async function() {
-            const outputEl = document.getElementById('output-text');
-            if (outputEl.querySelector('.placeholder-box')) {
-                showToast("コピーする議事録がありません。");
-                return;
-            }
-
-            const htmlContent = outputEl.innerHTML;
-            const plainText = outputEl.innerText;
-
-            try {
-                if (navigator.clipboard && window.ClipboardItem) {
-                    const htmlBlob = new Blob([htmlContent], { type: 'text/html' });
-                    const textBlob = new Blob([plainText], { type: 'text/plain' });
-                    await navigator.clipboard.write([
-                        new ClipboardItem({
-                            'text/html': htmlBlob,
-                            'text/plain': textBlob
-                        })
-                    ]);
-                    showToast("太字・色付けを含めてクリップボードにコピーしました！");
-                    return;
-                }
-            } catch (err) {
-                // フォールバックへ進む
-            }
-
-            // テキストのみのフォールバックコピー
-            const textarea = document.createElement('textarea');
-            textarea.value = plainText;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
-            try {
-                document.execCommand('copy');
-                showToast("議事録をクリップボードにコピーしました！");
-            } catch (e) {
-                showToast("コピーに失敗しました。");
-            }
-            document.body.removeChild(textarea);
-        };
-    </script>
-</body>
-</html>
+                showToast("抽出する項目を1
