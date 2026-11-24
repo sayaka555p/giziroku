@@ -3,14 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>議事録ヒーロー (AI搭載・安全版)</title>
-    <script type="importmap">
-      {
-        "imports": {
-          "@google/genai": "https://esm.run/@google/genai"
-        }
-      }
-    </script>
+    <title>議事録ヒーロー</title>
     <style>
         :root {
             --primary-color: #f59e0b; 
@@ -59,7 +52,6 @@
             margin: 0;
         }
 
-        /* 安全なAPIキー入力バーのスタイル */
         .api-key-bar {
             max-width: 1400px;
             margin: 0 auto 24px auto;
@@ -515,11 +507,12 @@
     </div>
 
     <script type="module">
-        import { GoogleGenAI } from '@google/genai';
+        import { GoogleGenAI } from 'https://esm.run/@google/genai';
 
         const STORAGE_KEY = 'gijiroku_hero_gemini_key';
+        // エラーメッセージの指示通り最新の gemini-3.8-flash を指定
+        const MODEL_NAME = 'gemini-3.8-flash';
 
-        // ページを開いたときに保存済みのAPIキーがあれば自動で読み込む
         window.addEventListener('DOMContentLoaded', () => {
             const savedKey = localStorage.getItem(STORAGE_KEY);
             if (savedKey) {
@@ -547,7 +540,6 @@
             setTimeout(() => toast.classList.remove("show"), 3000);
         }
 
-        // APIキーをブラウザに保存
         window.saveApiKey = function() {
             const key = document.getElementById('api-key-input').value.trim();
             if (!key) {
@@ -559,7 +551,6 @@
             showToast("APIキーをこのブラウザに安全に保存しました！", true);
         };
 
-        // APIキーを削除
         window.clearApiKey = function() {
             localStorage.removeItem(STORAGE_KEY);
             document.getElementById('api-key-input').value = '';
@@ -567,14 +558,12 @@
             showToast("ブラウザからAPIキーを削除しました。", true);
         };
 
-        // 現在入力されているAPIキーを取得する共通処理
         function getApiKey() {
             const inputKey = document.getElementById('api-key-input').value.trim();
             if (inputKey) return inputKey;
             return localStorage.getItem(STORAGE_KEY) || '';
         }
 
-        // 議事録を作成する
         window.generateMinutes = async function() {
             const apiKey = getApiKey();
             if (!apiKey) {
@@ -619,13 +608,13 @@ ${transcript}
             try {
                 const ai = new GoogleGenAI({ apiKey: apiKey });
                 const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
+                    model: MODEL_NAME,
                     contents: prompt,
                 });
                 outputText.innerText = response.text;
             } catch (error) {
                 console.error(error);
-                outputText.innerHTML = `<span style="color: #dc2626; font-weight: bold;">エラーが発生しました：</span><br>APIキーが正しく入力されているか確認してください。<br><small>${error.message}</small>`;
+                outputText.innerHTML = `<span style="color: #dc2626; font-weight: bold;">エラーが発生しました：</span><br>APIキーが正しく入力されているか確認してください。<br><small style="color:#64748b;">詳細: ${error.message}</small>`;
             } finally {
                 btn.disabled = false;
                 btnText.innerText = '🚀 議事録を作成する';
@@ -633,7 +622,6 @@ ${transcript}
             }
         };
 
-        // 会議アシスタントに質問する
         window.askQuestion = async function() {
             const apiKey = getApiKey();
             if (!apiKey) {
@@ -671,14 +659,14 @@ ${transcript}
             try {
                 const ai = new GoogleGenAI({ apiKey: apiKey });
                 const response = await ai.models.generateContent({
-                    model: 'gemini-2.5-flash',
+                    model: MODEL_NAME,
                     contents: prompt,
                 });
                 answerBox.innerText = response.text;
                 answerBox.style.display = 'block';
             } catch (error) {
                 console.error(error);
-                answerBox.innerHTML = `<span style="color: #dc2626;">エラーが発生しました：APIキーを確認してください。<br><small>${error.message}</small></span>`;
+                answerBox.innerHTML = `<span style="color: #dc2626;">エラーが発生しました：APIキーを確認してください。<br><small style="color:#64748b;">詳細: ${error.message}</small></span>`;
                 answerBox.style.display = 'block';
             } finally {
                 searchBtn.disabled = false;
