@@ -7,7 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* よりモダンで明るい配色にUIを改善 */
             --bg-canvas: #f8fafc;
             --bg-gradient: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
             --bg-surface: #ffffff;
@@ -44,6 +43,9 @@
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
             min-height: 100vh;
+            /* Flexbox to allow main content to grow and push footer if it existed, ensures alignment */
+            display: flex;
+            flex-direction: column;
         }
 
         .topbar {
@@ -200,17 +202,57 @@
             max-width: 1440px;
             margin: 32px auto;
             padding: 0 24px 60px 24px;
-            display: grid;
-            grid-template-columns: 1fr 1.15fr;
+            /* Flex layout on desktop to force equal height columns */
+            display: flex;
             gap: 32px;
-            align-items: start;
+            align-items: stretch; /* This makes children (columns) the same height */
+            flex-grow: 1;
         }
 
         @media (max-width: 960px) {
-            .workspace { grid-template-columns: 1fr; padding: 0 16px 40px 16px; gap: 24px; }
+            .workspace { flex-direction: column; padding: 0 16px 40px 16px; gap: 24px; }
         }
 
-        .column { display: flex; flex-direction: column; gap: 28px; }
+        .column { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 28px;
+            flex: 1;
+        }
+        
+        .column-right {
+            flex: 1.15;
+        }
+
+        /* 
+         * Layout fix to align bottoms:
+         * We make sure the last panels in each column expand to fill the remaining vertical space.
+         */
+        #panel-step2, #panel-step4 {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #panel-step2 .panel-body, #panel-step4 .panel-body {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            /* Justify content space-between for STEP 2 to push button to bottom */
+            /* justify-content: space-between; */ 
+        }
+        
+        /* Push the generate button to the bottom of STEP 2 if space allows */
+        .generate-btn-wrapper {
+            margin-top: auto;
+        }
+        
+        /* Push QA answer to bottom if space allows in STEP 4, or just let it flow naturally */
+        .qa-content-wrapper {
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
 
         .panel {
             background-color: var(--bg-surface);
@@ -336,6 +378,43 @@
 
         .chip-item input[type="checkbox"]:checked + label .chip-check {
             background-color: var(--accent-primary); border-color: var(--accent-primary);
+        }
+        
+        /* 自由記述フィールド用 */
+        .custom-item-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            margin-top: 4px;
+        }
+        
+        .chip-item.custom-chip {
+            flex-shrink: 0;
+        }
+        
+        .custom-item-input {
+            flex-grow: 1;
+            padding: 7px 12px;
+            border: 2px solid var(--border-light);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            background-color: var(--bg-surface);
+        }
+        
+        .custom-item-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+        
+        .custom-item-input:disabled {
+            background-color: var(--bg-subtle);
+            color: var(--text-muted);
+            cursor: not-allowed;
+            border-color: var(--border-light);
         }
 
         .volume-level-badge {
@@ -563,6 +642,48 @@
         }
         .bot-blush.left { left: 4px; }
         .bot-blush.right { right: 4px; }
+        
+        /* 吹き出し追加 */
+        .bot-tooltip {
+            position: absolute;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #ffffff;
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid var(--accent-primary);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, transform 0.3s;
+            pointer-events: none;
+        }
+        .bot-tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -6px;
+            border-width: 6px;
+            border-style: solid;
+            border-color: var(--accent-primary) transparent transparent transparent;
+        }
+        .bot-tooltip.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-10px);
+            animation: bounce 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes bounce {
+            0% { transform: translateX(-50%) scale(0.8) translateY(0); }
+            50% { transform: translateX(-50%) scale(1.1) translateY(-15px); }
+            100% { transform: translateX(-50%) scale(1) translateY(-10px); }
+        }
 
         /* ロボットの表情変化（happy） */
         .ai-bot.happy .bot-eye { 
@@ -575,10 +696,26 @@
         }
         .ai-bot.happy .bot-blush { opacity: 0.8; }
         .ai-bot.happy .bot-antenna::before { background: #fde047; box-shadow: 0 0 15px #fde047; }
+        
+        /* ロボットの表情変化（thinking） */
+        .ai-bot.thinking .bot-eye {
+            height: 4px;
+            animation: none;
+            background: #f43f5e;
+            box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
+        }
+        .ai-bot.thinking .bot-mouth {
+            width: 6px; height: 6px; border-radius: 50%;
+        }
+        .ai-bot.thinking .bot-antenna::before {
+            background: #f43f5e; box-shadow: 0 0 15px #f43f5e;
+            animation: pulse-fast 0.5s infinite;
+        }
 
         @keyframes bot-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes bot-blink { 0%, 94%, 98% { transform: scaleY(1); } 96%, 99% { transform: scaleY(0.1); } }
         @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 4px #f59e0b; } 50% { box-shadow: 0 0 12px #f59e0b, 0 0 0 4px rgba(245,158,11,0.2); } }
+        @keyframes pulse-fast { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); } }
         /* ------------------------------------------- */
 
         .qa-input-row { display: flex; gap: 10px; }
@@ -610,6 +747,7 @@
 
     <!-- AI Robot -->
     <div id="ai-bot" class="ai-bot" title="ドラッグで移動、クリックでご機嫌に！">
+        <div class="bot-tooltip" id="bot-tooltip">こんにちは！</div>
         <div class="bot-antenna"></div>
         <div class="bot-head">
             <div class="bot-face">
@@ -654,6 +792,7 @@
     </div>
 
     <main class="workspace">
+        <!-- 左カラム -->
         <div class="column">
             <!-- STEP 1 -->
             <section class="panel">
@@ -675,7 +814,7 @@
             </section>
 
             <!-- STEP 2 -->
-            <section class="panel">
+            <section class="panel" id="panel-step2">
                 <div class="panel-header">
                     <div class="panel-title-group">
                         <span class="step-badge">STEP 2</span>
@@ -685,7 +824,7 @@
                 <div class="panel-body">
                     <div class="setting-block">
                         <div class="setting-label-row">
-                            <span class="setting-label">1. 抽出する項目を選択（必要なものだけ選択）</span>
+                            <span class="setting-label">1. 抽出する項目を選択</span>
                             <div class="meta-actions">
                                 <button class="link-btn" id="btn-check-all">すべて選択</button>
                                 <span>/</span>
@@ -704,12 +843,21 @@
                             <div class="chip-item"><input type="checkbox" id="opt-issue" value="課題・懸念点"><label for="opt-issue"><span class="chip-check"></span>課題・懸念点</label></div>
                             <div class="chip-item"><input type="checkbox" id="opt-pending" value="保留事項"><label for="opt-pending"><span class="chip-check"></span>保留事項</label></div>
                             <div class="chip-item"><input type="checkbox" id="opt-next" value="次回予定"><label for="opt-next"><span class="chip-check"></span>次回予定</label></div>
+                            
+                            <!-- 自由記述フィールド -->
+                            <div class="custom-item-wrapper">
+                                <div class="chip-item custom-chip">
+                                    <input type="checkbox" id="opt-custom">
+                                    <label for="opt-custom"><span class="chip-check"></span>その他</label>
+                                </div>
+                                <input type="text" id="opt-custom-input" class="custom-item-input" placeholder="追加したい項目名（例：備考、参考リンク）" disabled>
+                            </div>
                         </div>
                     </div>
 
                     <div class="setting-block">
                         <div class="setting-label-row">
-                            <span class="setting-label">2. 生成する情報量（バーをクリックして選択）</span>
+                            <span class="setting-label">2. 生成する情報量（バーをクリック）</span>
                             <span class="volume-level-badge" id="volume-label">レベル 5 / 10（標準）</span>
                         </div>
                         <div class="volume-bar-container" id="volume-bar">
@@ -759,15 +907,18 @@
                         </div>
                     </div>
 
-                    <button class="btn-primary" id="btn-generate">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                        <span id="btn-text">議事録を作成する</span>
-                    </button>
+                    <div class="generate-btn-wrapper">
+                        <button class="btn-primary" id="btn-generate">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            <span id="btn-text">議事録を作成する</span>
+                        </button>
+                    </div>
                 </div>
             </section>
         </div>
 
-        <div class="column">
+        <!-- 右カラム -->
+        <div class="column column-right">
             <!-- STEP 3 -->
             <section class="panel">
                 <div class="panel-header">
@@ -841,7 +992,7 @@
             </section>
 
             <!-- STEP 4 -->
-            <section class="panel qa-container" id="qa-section">
+            <section class="panel qa-container" id="panel-step4">
                 <div class="panel-header">
                     <div class="panel-title-group">
                         <span class="step-badge" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9);">STEP 4</span>
@@ -849,11 +1000,13 @@
                     </div>
                 </div>
                 <div class="panel-body">
-                    <div class="qa-input-row">
-                        <input type="text" id="qa-input" placeholder="例：決定事項を3行で教えて / 誰がどのタスクを担当する？">
-                        <button class="btn-sm btn-sm-accent" style="padding: 0 24px;" id="btn-search">質問する</button>
+                    <div class="qa-content-wrapper">
+                        <div class="qa-input-row">
+                            <input type="text" id="qa-input" placeholder="例：決定事項を3行で教えて / 誰がどのタスクを担当する？">
+                            <button class="btn-sm btn-sm-accent" style="padding: 0 24px;" id="btn-search">質問する</button>
+                        </div>
+                        <div class="qa-answer-box" id="qa-answer"></div>
                     </div>
-                    <div class="qa-answer-box" id="qa-answer"></div>
                 </div>
             </section>
         </div>
@@ -866,7 +1019,7 @@
         const FALLBACK_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
         let selectedVolume = 5;
 
-        // イベントバインディングはすべてJS内で完結させ、インラインハンドラを排除
+        // イベントバインディング
         document.addEventListener('DOMContentLoaded', () => {
             // API Key init
             const savedKey = localStorage.getItem(STORAGE_KEY);
@@ -878,20 +1031,15 @@
                 document.getElementById('api-drawer').classList.add('open');
             }
 
-            // Volume bar init
             initVolumeBar();
-
-            // Setup AI Robot dragging and animation
             initAIRobot();
             
-            // UI Event Listeners
             document.getElementById('api-toggle-btn').addEventListener('click', () => {
                 document.getElementById('api-drawer').classList.toggle('open');
             });
             document.getElementById('btn-save-key').addEventListener('click', saveApiKey);
             document.getElementById('btn-clear-key').addEventListener('click', clearApiKey);
             
-            // --- 文字数のカウント処理 ---
             const transcriptInput = document.getElementById('transcript-input');
             transcriptInput.addEventListener('input', () => {
                 const len = transcriptInput.value.length;
@@ -905,8 +1053,21 @@
             
             document.getElementById('btn-check-all').addEventListener('click', () => toggleAllOptions(true));
             document.getElementById('btn-uncheck-all').addEventListener('click', () => toggleAllOptions(false));
+            
             document.querySelectorAll('#options-container input[type="checkbox"]').forEach(cb => {
                 cb.addEventListener('change', () => updateCheckboxVisual(cb));
+            });
+            
+            // 自由記述フィールドの有効/無効切り替え
+            const customCheckbox = document.getElementById('opt-custom');
+            const customInput = document.getElementById('opt-custom-input');
+            customCheckbox.addEventListener('change', () => {
+                if (customCheckbox.checked) {
+                    customInput.disabled = false;
+                    customInput.focus();
+                } else {
+                    customInput.disabled = true;
+                }
             });
 
             document.getElementById('btn-generate').addEventListener('click', generateMinutes);
@@ -924,7 +1085,6 @@
             document.getElementById('btn-dl-txt').addEventListener('click', () => downloadFile('txt'));
             document.getElementById('btn-dl-md').addEventListener('click', () => downloadFile('md'));
 
-            // Format Buttons (prevent default to keep selection)
             const bindFormat = (id, action) => {
                 const btn = document.getElementById(id);
                 btn.addEventListener('mousedown', e => e.preventDefault());
@@ -939,9 +1099,8 @@
             bindFormat('btn-hl-yellow', () => applyHighlightColor('#fef08a'));
             bindFormat('btn-hl-pink', () => applyHighlightColor('#fecdd3'));
             bindFormat('btn-hl-blue', () => applyHighlightColor('#bae6fd'));
-            bindFormat('btn-eraser', clearFormatting); // 消しゴム機能
+            bindFormat('btn-eraser', clearFormatting);
 
-            // QA
             document.getElementById('btn-search').addEventListener('click', askQuestion);
             document.getElementById('qa-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.isComposing) {
@@ -949,21 +1108,23 @@
                     askQuestion();
                 }
             });
+            
+            // 初回表示時にロボットに挨拶させる
+            setTimeout(() => {
+                showBotTooltip("こんにちは！よろしくね！");
+            }, 1000);
         });
 
         // ---------------- AI Robot Logic ----------------
         function initAIRobot() {
             const robot = document.getElementById('ai-bot');
-            const qaSection = document.getElementById('qa-section');
+            const qaSection = document.getElementById('panel-step4');
             let isDragging = false;
             let currentX, currentY, initialX, initialY;
             let xOffset = 0, yOffset = 0;
 
-            // ロボットの初期位置をSTEP 4の近くに設定
             if (qaSection) {
                 const rect = qaSection.getBoundingClientRect();
-                // 初期位置：画面右下寄り、あるいはQAセクションの右上
-                // position: fixed なので、画面の幅に基づく
                 const startLeft = Math.min(window.innerWidth - 100, rect.right - 90);
                 const startTop = Math.max(20, rect.top - 50);
                 
@@ -981,11 +1142,11 @@
             window.addEventListener('mouseup', dragEnd);
 
             function dragStart(e) {
-                if (e.target.closest('.ai-bot')) {
+                if (e.target.closest('.ai-bot') && !e.target.closest('.bot-tooltip')) {
                     initialX = e.clientX - xOffset;
                     initialY = e.clientY - yOffset;
                     isDragging = true;
-                    robot.style.animation = 'none'; // ドラッグ中は浮遊アニメを停止
+                    robot.style.animation = 'none';
                 }
             }
             function drag(e) {
@@ -1007,18 +1168,42 @@
                 }
             }
 
-            // クリックで表情が変わる
             let clickTimeout;
             robot.addEventListener('click', (e) => {
-                // ドラッグの終わりのクリックと区別
                 if (Math.abs(e.clientX - (initialX + xOffset)) < 5 && Math.abs(e.clientY - (initialY + yOffset)) < 5) {
                     robot.classList.add('happy');
+                    
+                    const messages = [
+                        "がんばるよ！",
+                        "議事録のことならお任せ！",
+                        "何か質問ある？",
+                        "ばっちりだよ！",
+                        "おつかれさま！"
+                    ];
+                    const msg = messages[Math.floor(Math.random() * messages.length)];
+                    showBotTooltip(msg);
+                    
                     clearTimeout(clickTimeout);
                     clickTimeout = setTimeout(() => {
                         robot.classList.remove('happy');
                     }, 2000);
                 }
             });
+        }
+        
+        function showBotTooltip(message, duration = 3000) {
+            const tooltip = document.getElementById('bot-tooltip');
+            tooltip.innerText = message;
+            tooltip.classList.add('show');
+            
+            // 既存のタイマーをクリア
+            if (window.botTooltipTimer) {
+                clearTimeout(window.botTooltipTimer);
+            }
+            
+            window.botTooltipTimer = setTimeout(() => {
+                tooltip.classList.remove('show');
+            }, duration);
         }
 
         // ---------------- Helpers ----------------
@@ -1033,8 +1218,15 @@
 
         function toggleAllOptions(selectAll) {
             document.querySelectorAll('#options-container input[type="checkbox"]').forEach(cb => {
+                // カスタムチェックボックスは全選択/解除の対象に含めるが、テキストボックスの状態も連動させる
                 cb.checked = selectAll;
                 updateCheckboxVisual(cb);
+                
+                if (cb.id === 'opt-custom') {
+                    const customInput = document.getElementById('opt-custom-input');
+                    customInput.disabled = !selectAll;
+                    if (selectAll) customInput.focus();
+                }
             });
         }
 
@@ -1088,9 +1280,9 @@
             document.getElementById('api-drawer').classList.remove('open');
             showToast("APIキーを保存しました！");
             
-            // ロボットを喜ばせる
             const bot = document.getElementById('ai-bot');
             bot.classList.add('happy');
+            showBotTooltip("APIキー設定OKだよ！");
             setTimeout(() => bot.classList.remove('happy'), 2000);
         }
 
@@ -1148,17 +1340,12 @@
             document.execCommand('styleWithCSS', false, true);
             document.execCommand('hiliteColor', false, bgColor);
         }
-        
-        // 消しゴム機能：標準のremoveFormatに加え、背景色と文字色をリセット
         function clearFormatting() {
             if (!hasValidOutputSelection()) return;
-            // 太字等の基本書式をクリア
             document.execCommand('removeFormat', false, null);
-            // spanのインラインスタイルでついた色をクリア
             document.execCommand('styleWithCSS', false, true);
             document.execCommand('hiliteColor', false, 'transparent');
             document.execCommand('foreColor', false, 'inherit');
-            
             showToast("選択範囲の書式を消去しました！");
         }
 
@@ -1178,6 +1365,7 @@
                     });
                     await navigator.clipboard.write([clipboardItem]);
                     showToast("書式付きでコピーしました！");
+                    showBotTooltip("コピー完了だよ！");
                     return;
                 }
             } catch (e) {}
@@ -1191,6 +1379,7 @@
                 document.execCommand('copy');
                 sel.removeAllRanges();
                 showToast("書式付きでコピーしました！");
+                showBotTooltip("コピー完了だよ！");
             } catch (err) {
                 showToast("コピーに失敗しました。手動で選択してください。");
             }
@@ -1230,6 +1419,7 @@
             setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
             
             showToast(`${fileName} を保存しました！`);
+            showBotTooltip("ファイルを保存したよ！");
         }
 
         // ---------------- API Call Logic ----------------
@@ -1301,10 +1491,34 @@
             const transcript = document.getElementById('transcript-input').value.trim();
             if (!transcript) return showToast("会議の内容を入力してください。");
 
+            // 選択されたチェックボックスの取得（その他は別途処理）
             const checkboxes = document.querySelectorAll('#options-container input[type="checkbox"]:checked');
             if (checkboxes.length === 0) return showToast("抽出する項目を選択してください。");
 
-            const selectedItems = Array.from(checkboxes).map(cb => cb.value);
+            const selectedItems = [];
+            let hasCustomItem = false;
+            let customItemText = "";
+            
+            checkboxes.forEach(cb => {
+                if (cb.id === 'opt-custom') {
+                    hasCustomItem = true;
+                    customItemText = document.getElementById('opt-custom-input').value.trim();
+                } else {
+                    selectedItems.push(cb.value);
+                }
+            });
+            
+            // 自由記述項目のチェックが入っているが、テキストが空の場合は警告
+            if (hasCustomItem && !customItemText) {
+                document.getElementById('opt-custom-input').focus();
+                return showToast("「その他」の項目名を入力してください。");
+            }
+            
+            // 自由記述項目があれば追加
+            if (hasCustomItem && customItemText) {
+                selectedItems.push(customItemText);
+            }
+
             const highlightMode = document.querySelector('input[name="ai-highlight"]:checked')?.value || 'none';
 
             const highlightInstruction = highlightMode === 'none'
@@ -1331,8 +1545,8 @@ ${transcript}`;
 
             overlay.style.display = 'flex';
             generateBtn.disabled = true;
-            // 生成中はロボットも考える表情に
             bot.classList.add('thinking');
+            showBotTooltip("えーっと、まとめるね...", 4000);
 
             try {
                 const resultText = await callGeminiWithFallback(apiKey, prompt, () => {
@@ -1342,10 +1556,12 @@ ${transcript}`;
                 showToast("議事録が完成しました！");
                 bot.classList.remove('thinking');
                 bot.classList.add('happy');
+                showBotTooltip("議事録できたよ！", 3000);
                 setTimeout(() => bot.classList.remove('happy'), 3000);
             } catch (error) {
                 outputEl.innerHTML = formatFriendlyError(error);
                 bot.classList.remove('thinking');
+                showBotTooltip("うーん、エラーになっちゃった", 3000);
             } finally {
                 overlay.style.display = 'none';
                 generateBtn.disabled = false;
@@ -1378,6 +1594,7 @@ ${transcript}`;
             answerBox.style.display = 'block';
             answerBox.innerHTML = `<span class="qa-answer-label">AIアシスタント</span>回答を生成しています...`;
             bot.classList.add('thinking');
+            showBotTooltip("んー、えーっとね...", 3000);
 
             const prompt = `以下の【会議の内容】をもとに、【質問】に対して正確かつ簡潔に日本語で回答してください。
 内容にない事柄は推測せず「確認できませんでした」と回答してください。
@@ -1391,6 +1608,7 @@ ${question}`;
                 answerBox.innerHTML = `<span class="qa-answer-label">AIからの回答</span>${escapeHtml(answerText.trim())}`;
                 bot.classList.remove('thinking');
                 bot.classList.add('happy');
+                showBotTooltip("わかったよ！", 2000);
                 setTimeout(() => bot.classList.remove('happy'), 2000);
             } catch (error) {
                 answerBox.innerHTML = formatFriendlyError(error);
