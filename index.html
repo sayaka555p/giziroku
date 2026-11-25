@@ -21,7 +21,7 @@
             --accent-soft: #eff6ff;
             --dark-btn: #0f172a;
             --dark-btn-hover: #1e293b;
-            
+
             --radius-xl: 16px;
             --radius-lg: 12px;
             --radius-md: 8px;
@@ -52,7 +52,7 @@
         }
 
         .topbar {
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.92);
             backdrop-filter: blur(8px);
             border-bottom: 1px solid var(--border-light);
             padding: 12px 24px;
@@ -108,6 +108,12 @@
 
         @media (max-width: 640px) { .brand-sub { display: none; } }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .api-toggle-btn {
             display: inline-flex;
             align-items: center;
@@ -122,6 +128,7 @@
             cursor: pointer;
             transition: all 0.2s ease;
             box-shadow: var(--shadow-sm);
+            font-family: inherit;
         }
 
         .api-toggle-btn:hover {
@@ -202,6 +209,83 @@
             background-color: #fff;
         }
 
+        /* 履歴ドロワー */
+        .history-drawer {
+            display: none;
+            background-color: #ffffff;
+            border-bottom: 1px solid var(--border-light);
+            padding: 18px 24px;
+            box-shadow: var(--shadow-md);
+            position: relative;
+            z-index: 48;
+        }
+
+        .history-drawer.open { display: block; animation: slideDown 0.25s ease-out; }
+
+        .history-drawer-inner {
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .history-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 12px;
+        }
+
+        .history-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 12px;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .history-card {
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .history-card:hover {
+            border-color: var(--accent-primary);
+            background-color: #ffffff;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .history-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-preview {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+        }
+
+        .history-card-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
         .workspace {
             max-width: 1440px;
             margin: 32px auto;
@@ -217,13 +301,13 @@
             .workspace { flex-direction: column; padding: 0 16px 40px 16px; gap: 24px; }
         }
 
-        .column { 
-            display: flex; 
-            flex-direction: column; 
+        .column {
+            display: flex;
+            flex-direction: column;
             gap: 28px;
             flex: 1;
         }
-        
+
         .column-right {
             flex: 1.15;
         }
@@ -233,17 +317,17 @@
             display: flex;
             flex-direction: column;
         }
-        
+
         #panel-step2 .panel-body, #panel-step4 .panel-body {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
-        
+
         .generate-btn-wrapper {
             margin-top: auto;
         }
-        
+
         .qa-content-wrapper {
             display: flex;
             flex-direction: column;
@@ -295,11 +379,20 @@
             margin: 0;
         }
 
-        .panel-actions { display: flex; align-items: center; gap: 8px; }
+        .panel-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
         .panel-body { padding: 24px; }
 
-        .textarea-wrapper { position: relative; }
+        .textarea-wrapper {
+            position: relative;
+            border-radius: var(--radius-lg);
+        }
+
+        .textarea-wrapper.drag-over #transcript-input {
+            border-color: var(--accent-primary);
+            background-color: var(--accent-soft);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
 
         #transcript-input {
             width: 100%;
@@ -323,13 +416,25 @@
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08);
         }
 
+        .input-footer-hint {
+            margin-top: 8px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
         .meta-actions {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             font-size: 0.85rem;
             color: var(--text-muted);
             font-weight: 500;
+            flex-wrap: wrap;
         }
 
         .link-btn {
@@ -345,1238 +450,4 @@
 
         .setting-label-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
 
-        .setting-label { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); }
-
-        .options-grid { display: flex; flex-wrap: wrap; gap: 10px; }
-
-        .chip-item input[type="checkbox"] { display: none; }
-
-        .chip-item label {
-            display: inline-flex; align-items: center; gap: 8px;
-            padding: 8px 16px; background-color: var(--bg-surface);
-            border: 2px solid var(--border-light); border-radius: 20px;
-            font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
-            cursor: pointer; transition: all 0.2s ease; user-select: none;
-        }
-
-        .chip-item label:hover { border-color: var(--border-medium); transform: translateY(-1px); box-shadow: var(--shadow-sm); }
-
-        .chip-item input[type="checkbox"]:checked + label {
-            background-color: var(--accent-soft); border-color: var(--accent-primary);
-            color: var(--accent-primary); font-weight: 700; box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
-        }
-
-        .chip-check {
-            width: 16px; height: 16px; border: 2px solid var(--border-medium);
-            border-radius: 4px; display: inline-flex; align-items: center; justify-content: center;
-            background-color: #ffffff; transition: all 0.2s;
-        }
-
-        .chip-item input[type="checkbox"]:checked + label .chip-check {
-            background-color: var(--accent-primary); border-color: var(--accent-primary);
-        }
-        
-        .custom-item-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            margin-top: 4px;
-        }
-        
-        .chip-item.custom-chip {
-            flex-shrink: 0;
-        }
-        
-        .custom-item-input {
-            flex-grow: 1;
-            padding: 7px 12px;
-            border: 2px solid var(--border-light);
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-family: inherit;
-            transition: all 0.2s ease;
-            background-color: var(--bg-surface);
-        }
-        
-        .custom-item-input:focus {
-            outline: none;
-            border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-        }
-        
-        .custom-item-input:disabled {
-            background-color: var(--bg-subtle);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            border-color: var(--border-light);
-        }
-
-        .volume-level-badge {
-            font-size: 0.8rem; font-weight: 700; color: var(--accent-primary);
-            background-color: var(--accent-soft); padding: 4px 12px; border-radius: 12px;
-        }
-
-        .volume-bar-container {
-            display: flex; width: 100%; height: 42px;
-            border: 2px solid var(--border-light); border-radius: var(--radius-lg);
-            overflow: hidden; background-color: var(--bg-subtle); user-select: none;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-        }
-
-        .volume-segment {
-            flex: 1; display: flex; align-items: center; justify-content: center;
-            font-size: 0.85rem; font-weight: 700; color: var(--text-secondary);
-            border-right: 1px solid var(--border-light); cursor: pointer;
-            transition: all 0.15s;
-        }
-
-        .volume-segment:last-child { border-right: none; }
-        .volume-segment:hover { background-color: #e2e8f0; }
-
-        .volume-segment.active {
-            background-color: var(--accent-primary); color: #ffffff;
-            border-right-color: rgba(255, 255, 255, 0.2); text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-        }
-
-        .volume-segment.active:hover { background-color: var(--accent-hover); }
-
-        .volume-scale-hints {
-            display: flex; justify-content: space-between; font-size: 0.75rem;
-            color: var(--text-muted); margin-top: 8px; font-weight: 600;
-        }
-
-        .highlight-presets { display: flex; flex-wrap: wrap; gap: 10px; }
-
-        .preset-radio input[type="radio"] { display: none; }
-
-        .preset-radio label {
-            display: inline-flex; align-items: center; gap: 6px;
-            padding: 8px 14px; border: 2px solid var(--border-light);
-            border-radius: var(--radius-md); background-color: var(--bg-surface);
-            font-size: 0.85rem; color: var(--text-secondary); cursor: pointer;
-            transition: all 0.2s; font-weight: 600;
-        }
-
-        .preset-radio input[type="radio"]:checked + label {
-            border-color: var(--accent-primary); background-color: var(--accent-soft);
-            color: var(--accent-primary); font-weight: 700;
-            box-shadow: 0 2px 6px rgba(59, 130, 246, 0.15);
-        }
-
-        .btn-primary {
-            width: 100%; padding: 16px 24px;
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            color: #ffffff; border: none; border-radius: var(--radius-lg);
-            font-size: 1.05rem; font-weight: 700; cursor: pointer;
-            display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-            transition: all 0.2s; box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(15, 23, 42, 0.3);
-            background: linear-gradient(135deg, #334155, #1e293b);
-        }
-
-        .btn-primary:active { transform: translateY(0); }
-
-        .btn-primary:disabled {
-            background: var(--border-medium); color: var(--bg-surface);
-            cursor: not-allowed; box-shadow: none; transform: none;
-        }
-
-        .btn-sm {
-            padding: 8px 14px; border-radius: var(--radius-md); font-size: 0.85rem;
-            font-weight: 700; cursor: pointer; border: 1px solid var(--border-medium);
-            background-color: var(--bg-surface); color: var(--text-primary);
-            display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-sm:hover { background-color: var(--bg-subtle); transform: translateY(-1px); box-shadow: var(--shadow-md); }
-        .btn-sm:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        .btn-sm-accent {
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-hover));
-            border-color: transparent; color: #ffffff;
-        }
-        .btn-sm-accent:hover { background: linear-gradient(135deg, var(--accent-hover), #1d4ed8); color:#fff; }
-
-        .format-toolbar {
-            padding: 10px 20px; background-color: #f8fafc;
-            border-bottom: 2px solid var(--border-light);
-            display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
-        }
-
-        .toolbar-group { display: flex; align-items: center; gap: 6px; }
-        .toolbar-divider { width: 2px; height: 24px; background-color: var(--border-light); border-radius: 2px;}
-        .toolbar-caption { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-right: 4px; }
-
-        .tool-btn {
-            min-width: 32px; height: 32px; padding: 0 8px;
-            border: none; border-radius: 6px; background-color: transparent;
-            color: var(--text-primary); font-size: 0.9rem; font-weight: 700;
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .tool-btn:hover { background-color: #e2e8f0; color: var(--accent-primary); transform: translateY(-1px);}
-
-        .tool-btn.eraser {
-            background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5;
-        }
-        .tool-btn.eraser:hover {
-            background-color: #fca5a5; color: #b91c1c;
-        }
-
-        .color-swatch {
-            width: 24px; height: 24px; border-radius: 50%;
-            border: 2px solid #ffffff; cursor: pointer; padding: 0;
-            transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .color-swatch:hover { transform: scale(1.15) translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-
-        .marker-swatch {
-            padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700;
-            color: var(--text-primary); border: none; cursor: pointer; transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .marker-swatch:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); filter: brightness(0.95);}
-
-        .dropdown-menu { position: relative; display: inline-block; }
-        .dropdown-content {
-            display: none; position: absolute; right: 0;
-            background-color: var(--bg-surface); min-width: 160px;
-            box-shadow: var(--shadow-floating);
-            border: 1px solid var(--border-light); border-radius: var(--radius-md);
-            z-index: 100; overflow: hidden; margin-top: 8px;
-        }
-        .dropdown-menu.show .dropdown-content { display: block; animation: slideDown 0.2s ease; }
-        
-        .dropdown-item {
-            color: var(--text-primary); padding: 10px 16px; text-decoration: none;
-            display: block; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: background-color 0.2s;
-        }
-        .dropdown-item:hover { background-color: var(--bg-subtle); color: var(--accent-primary); }
-
-        .output-wrapper { position: relative; }
-
-        #output-text {
-            min-height: 400px; max-height: 650px; padding: 24px;
-            font-size: 0.95rem; line-height: 1.8; color: var(--text-primary);
-            background-color: #ffffff; overflow-y: auto; white-space: pre-wrap; outline: none;
-        }
-        #output-text:focus { background-color: #fefeff; box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.1);}
-
-        .placeholder-box {
-            color: var(--text-muted); text-align: center; padding: 100px 20px; font-size: 0.95rem; font-weight: 500;
-        }
-
-        .processing-overlay {
-            display: none; position: absolute; inset: 0; background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px); justify-content: center; align-items: center; flex-direction: column;
-            gap: 16px; z-index: 10; border-radius: 0 0 var(--radius-xl) var(--radius-xl);
-        }
-
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid var(--border-light);
-            border-top-color: var(--accent-primary); border-radius: 50%;
-            animation: spin 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* ---------------- AI ロボット（STEP 4 質問欄の下の空白エリアに配置） ---------------- */
-        .qa-container {
-            position: relative;
-        }
-
-        .qa-bot-stage {
-            margin-top: auto;
-            padding-top: 24px;
-            min-height: 130px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-end;
-            position: relative;
-            background: radial-gradient(circle at 50% 75%, rgba(139, 92, 246, 0.08) 0%, transparent 70%);
-            border-radius: var(--radius-lg);
-        }
-
-        .ai-bot {
-            position: relative;
-            width: 70px; height: 85px;
-            cursor: pointer; z-index: 20;
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            animation: bot-float 3.5s ease-in-out infinite;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.12));
-            user-select: none;
-        }
-        .ai-bot:hover {
-            transform: scale(1.06);
-        }
-        .ai-bot:active {
-            transform: scale(0.94);
-        }
-
-        .bot-floor-shadow {
-            width: 52px;
-            height: 10px;
-            background: rgba(15, 23, 42, 0.12);
-            border-radius: 50%;
-            margin-top: 6px;
-            animation: shadow-pulse 3.5s ease-in-out infinite;
-        }
-
-        @keyframes shadow-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.7; }
-            50% { transform: scale(0.78); opacity: 0.35; }
-        }
-
-        .bot-antenna {
-            width: 4px; height: 16px; background: #94a3b8; margin: 0 auto; position: relative; border-radius: 2px 2px 0 0;
-        }
-        .bot-antenna::before {
-            content: ''; position: absolute; top: -8px; left: -4px;
-            width: 12px; height: 12px; background: #f59e0b; border-radius: 50%;
-            box-shadow: 0 0 10px #f59e0b;
-            animation: pulse-glow 2s infinite;
-        }
-        .bot-head {
-            width: 70px; height: 56px; background: #ffffff;
-            border: 3px solid #e2e8f0; border-radius: 24px;
-            position: relative; display: flex; justify-content: center; align-items: center;
-            overflow: hidden; background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 100%);
-        }
-        .bot-face {
-            width: 54px; height: 38px; background: #0f172a; border-radius: 16px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-            position: relative; border: 2px solid #1e293b;
-        }
-        .bot-eyes { display: flex; gap: 14px; margin-top: 2px; }
-        .bot-eye { 
-            width: 8px; height: 12px; background: #38bdf8; border-radius: 4px; 
-            animation: bot-blink 4s infinite; box-shadow: 0 0 6px rgba(56, 189, 248, 0.6);
-        }
-        .bot-mouth { width: 12px; height: 4px; background: #38bdf8; border-radius: 2px; transition: all 0.3s; }
-        
-        .bot-blush {
-            position: absolute; width: 10px; height: 5px; background: #f43f5e;
-            border-radius: 50%; top: 22px; opacity: 0; transition: all 0.3s ease; filter: blur(1px);
-        }
-        .bot-blush.left { left: 4px; }
-        .bot-blush.right { right: 4px; }
-        
-        .bot-tooltip {
-            position: absolute;
-            bottom: 94px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: #ffffff;
-            color: var(--text-primary);
-            padding: 7px 14px;
-            border-radius: 14px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            white-space: nowrap;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.12);
-            border: 2px solid #8b5cf6;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.25s, transform 0.25s;
-            pointer-events: none;
-            z-index: 30;
-        }
-        .bot-tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -6px;
-            border-width: 6px;
-            border-style: solid;
-            border-color: #8b5cf6 transparent transparent transparent;
-        }
-        .bot-tooltip.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(-6px);
-            animation: bounce 0.45s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes bounce {
-            0% { transform: translateX(-50%) scale(0.85) translateY(0); }
-            50% { transform: translateX(-50%) scale(1.08) translateY(-10px); }
-            100% { transform: translateX(-50%) scale(1) translateY(-6px); }
-        }
-
-        .ai-bot.happy .bot-eye { 
-            height: 5px; background: #fde047; transform: translateY(3px); 
-            border-radius: 10px 10px 0 0; animation: none; box-shadow: 0 0 8px rgba(253, 224, 71, 0.8);
-        }
-        .ai-bot.happy .bot-mouth { 
-            width: 20px; height: 10px; border-radius: 0 0 12px 12px; 
-            background: #fde047; transform: translateY(1px);
-        }
-        .ai-bot.happy .bot-blush { opacity: 0.85; }
-        .ai-bot.happy .bot-antenna::before { background: #fde047; box-shadow: 0 0 15px #fde047; }
-        
-        .ai-bot.thinking .bot-eye {
-            height: 4px;
-            animation: none;
-            background: #f43f5e;
-            box-shadow: 0 0 8px rgba(244, 63, 94, 0.8);
-        }
-        .ai-bot.thinking .bot-mouth {
-            width: 6px; height: 6px; border-radius: 50%;
-        }
-        .ai-bot.thinking .bot-antenna::before {
-            background: #f43f5e; box-shadow: 0 0 15px #f43f5e;
-            animation: pulse-fast 0.5s infinite;
-        }
-
-        @keyframes bot-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes bot-blink { 0%, 94%, 98% { transform: scaleY(1); } 96%, 99% { transform: scaleY(0.1); } }
-        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 4px #f59e0b; } 50% { box-shadow: 0 0 12px #f59e0b, 0 0 0 4px rgba(245,158,11,0.2); } }
-        @keyframes pulse-fast { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.5); } }
-        /* ------------------------------------------- */
-
-        .qa-input-row { display: flex; gap: 10px; }
-        .qa-input-row input {
-            flex-grow: 1; padding: 12px 16px; border: 2px solid var(--border-medium);
-            border-radius: var(--radius-md); font-size: 0.95rem; color: var(--text-primary); transition: all 0.2s;
-            font-family: inherit;
-        }
-        .qa-input-row input:focus { outline: none; border-color: var(--accent-primary); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.08); }
-        .qa-answer-box {
-            display: none; margin-top: 16px; padding: 20px; background-color: var(--bg-surface);
-            border: 2px solid var(--border-light); border-left: 4px solid var(--accent-primary);
-            border-radius: var(--radius-md); font-size: 0.95rem; line-height: 1.75; white-space: pre-wrap;
-            box-shadow: var(--shadow-sm); animation: slideDown 0.3s ease;
-        }
-        .qa-answer-label { font-size: 0.8rem; font-weight: 700; color: var(--accent-primary); margin-bottom: 8px; display: block; }
-
-        #toast-container {
-            visibility: hidden; min-width: 280px; background-color: #1e293b; color: #ffffff; text-align: center;
-            border-radius: var(--radius-md); padding: 14px 24px; position: fixed; z-index: 2000;
-            left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); opacity: 0; transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            font-size: 0.9rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        #toast-container.show { visibility: visible; opacity: 1; transform: translateX(-50%) translateY(0); }
-    </style>
-</head>
-<body>
-    <div id="toast-container"></div>
-
-    <header class="topbar">
-        <div class="topbar-inner">
-            <div class="brand">
-                <div class="brand-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                </div>
-                <h1 class="brand-title">議事録ヒーロー</h1>
-                <span class="brand-sub">会議テキスト構造化・AIアシスタント</span>
-            </div>
-            <button class="api-toggle-btn" id="api-toggle-btn">
-                <span class="status-dot" id="api-status-dot"></span>
-                <span id="api-status-label">APIキー設定</span>
-            </button>
-        </div>
-    </header>
-
-    <div class="api-drawer" id="api-drawer">
-        <div class="api-drawer-inner">
-            <div class="api-drawer-info">
-                <strong>Gemini APIキー設定：</strong>入力したキーはお使いのブラウザ内（端末ローカル）にのみ保存され、外部へは送信されません。
-            </div>
-            <div class="api-drawer-form">
-                <input type="password" id="api-key-input" placeholder="AIzaSy... から始まるAPIキーを入力">
-                <button class="btn-sm btn-sm-accent" id="btn-save-key">保存</button>
-                <button class="btn-sm" id="btn-clear-key">削除</button>
-            </div>
-        </div>
-    </div>
-
-    <main class="workspace">
-        <!-- 左カラム -->
-        <div class="column">
-            <!-- STEP 1 -->
-            <section class="panel">
-                <div class="panel-header">
-                    <div class="panel-title-group">
-                        <span class="step-badge">STEP 1</span>
-                        <h2 class="panel-title">会議の内容（文字起こし）</h2>
-                    </div>
-                    <div class="meta-actions">
-                        <span id="char-count">0 文字</span>
-                        <button class="link-btn" id="btn-clear-transcript">クリア</button>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="textarea-wrapper">
-                        <textarea id="transcript-input" placeholder="会議の文字起こしテキストやメモをここに貼り付けてください..."></textarea>
-                    </div>
-                </div>
-            </section>
-
-            <!-- STEP 2 -->
-            <section class="panel" id="panel-step2">
-                <div class="panel-header">
-                    <div class="panel-title-group">
-                        <span class="step-badge">STEP 2</span>
-                        <h2 class="panel-title">出力条件の設定</h2>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="setting-block">
-                        <div class="setting-label-row">
-                            <span class="setting-label">1. 抽出する項目を選択</span>
-                            <div class="meta-actions">
-                                <button class="link-btn" id="btn-check-all">すべて選択</button>
-                                <span>/</span>
-                                <button class="link-btn" id="btn-uncheck-all">解除</button>
-                            </div>
-                        </div>
-                        <div class="options-grid" id="options-container">
-                            <div class="chip-item"><input type="checkbox" id="opt-date" value="日付"><label for="opt-date"><span class="chip-check"></span>日付</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-place" value="場所"><label for="opt-place"><span class="chip-check"></span>場所</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-name" value="参加者"><label for="opt-name"><span class="chip-check"></span>参加者</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-summary" value="要点"><label for="opt-summary"><span class="chip-check"></span>要点</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-decision" value="決定事項"><label for="opt-decision"><span class="chip-check"></span>決定事項</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-task" value="タスク"><label for="opt-task"><span class="chip-check"></span>タスク</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-important" value="重要事項"><label for="opt-important"><span class="chip-check"></span>重要事項</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-opinion" value="意見"><label for="opt-opinion"><span class="chip-check"></span>意見</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-issue" value="課題・懸念点"><label for="opt-issue"><span class="chip-check"></span>課題・懸念点</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-pending" value="保留事項"><label for="opt-pending"><span class="chip-check"></span>保留事項</label></div>
-                            <div class="chip-item"><input type="checkbox" id="opt-next" value="次回予定"><label for="opt-next"><span class="chip-check"></span>次回予定</label></div>
-                            
-                            <div class="custom-item-wrapper">
-                                <div class="chip-item custom-chip">
-                                    <input type="checkbox" id="opt-custom">
-                                    <label for="opt-custom"><span class="chip-check"></span>その他</label>
-                                </div>
-                                <input type="text" id="opt-custom-input" class="custom-item-input" placeholder="追加したい項目名（例：備考、参考リンク）" disabled>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="setting-block">
-                        <div class="setting-label-row">
-                            <span class="setting-label">2. 生成する情報量（バーをクリック）</span>
-                            <span class="volume-level-badge" id="volume-label">レベル 5 / 10（標準）</span>
-                        </div>
-                        <div class="volume-bar-container" id="volume-bar">
-                            <div class="volume-segment active" data-val="1">1</div>
-                            <div class="volume-segment active" data-val="2">2</div>
-                            <div class="volume-segment active" data-val="3">3</div>
-                            <div class="volume-segment active" data-val="4">4</div>
-                            <div class="volume-segment active" data-val="5">5</div>
-                            <div class="volume-segment" data-val="6">6</div>
-                            <div class="volume-segment" data-val="7">7</div>
-                            <div class="volume-segment" data-val="8">8</div>
-                            <div class="volume-segment" data-val="9">9</div>
-                            <div class="volume-segment" data-val="10">10</div>
-                        </div>
-                        <div class="volume-scale-hints">
-                            <span>1：簡潔（要点のみ）</span>
-                            <span>5：標準</span>
-                            <span>10：詳細（経緯・発言も網羅）</span>
-                        </div>
-                    </div>
-
-                    <div class="setting-block">
-                        <div class="setting-label-row">
-                            <span class="setting-label">3. 重要箇所のAI自動強調</span>
-                        </div>
-                        <div class="highlight-presets">
-                            <div class="preset-radio">
-                                <input type="radio" name="ai-highlight" id="hl-none" value="none" checked>
-                                <label for="hl-none">なし（標準テキスト）</label>
-                            </div>
-                            <div class="preset-radio">
-                                <input type="radio" name="ai-highlight" id="hl-bold" value="bold">
-                                <label for="hl-bold"><strong>太字</strong></label>
-                            </div>
-                            <div class="preset-radio">
-                                <input type="radio" name="ai-highlight" id="hl-red" value="red">
-                                <label for="hl-red"><strong style="color:#dc2626;">太字＋赤文字</strong></label>
-                            </div>
-                            <div class="preset-radio">
-                                <input type="radio" name="ai-highlight" id="hl-blue" value="blue">
-                                <label for="hl-blue"><strong style="color:#2563eb;">太字＋青文字</strong></label>
-                            </div>
-                            <div class="preset-radio">
-                                <input type="radio" name="ai-highlight" id="hl-marker" value="marker">
-                                <label for="hl-marker"><strong style="background-color:#fef08a; padding:0 4px; border-radius:2px;">太字＋黄色マーカー</strong></label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="generate-btn-wrapper">
-                        <button class="btn-primary" id="btn-generate">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                            <span id="btn-text">議事録を作成する</span>
-                        </button>
-                    </div>
-                </div>
-            </section>
-        </div>
-
-        <!-- 右カラム -->
-        <div class="column column-right">
-            <!-- STEP 3 -->
-            <section class="panel">
-                <div class="panel-header">
-                    <div class="panel-title-group">
-                        <span class="step-badge">STEP 3</span>
-                        <h2 class="panel-title">生成結果（選択して太字・色付け可能）</h2>
-                    </div>
-                    <div class="panel-actions">
-                        <button class="btn-sm" id="btn-copy">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                            <span>コピー</span>
-                        </button>
-                        
-                        <div class="dropdown-menu" id="download-dropdown">
-                            <button class="btn-sm" id="btn-download-toggle">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                                <span>保存 ▾</span>
-                            </button>
-                            <div class="dropdown-content">
-                                <a class="dropdown-item" id="btn-dl-txt">テキストファイル (.txt)</a>
-                                <a class="dropdown-item" id="btn-dl-md">Markdown (.md)</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="format-toolbar">
-                    <div class="toolbar-group">
-                        <span class="toolbar-caption">文字装飾:</span>
-                        <button class="tool-btn" id="btn-fmt-bold" title="太字にする">B</button>
-                    </div>
-                    <div class="toolbar-divider"></div>
-                    <div class="toolbar-group">
-                        <span class="toolbar-caption">文字色:</span>
-                        <button class="color-swatch" id="btn-color-black" style="background-color: #0f172a;" title="黒"></button>
-                        <button class="color-swatch" id="btn-color-red" style="background-color: #dc2626;" title="赤"></button>
-                        <button class="color-swatch" id="btn-color-blue" style="background-color: #2563eb;" title="青"></button>
-                        <button class="color-swatch" id="btn-color-green" style="background-color: #16a34a;" title="緑"></button>
-                        <button class="color-swatch" id="btn-color-orange" style="background-color: #d97706;" title="オレンジ"></button>
-                    </div>
-                    <div class="toolbar-divider"></div>
-                    <div class="toolbar-group">
-                        <span class="toolbar-caption">マーカー:</span>
-                        <button class="marker-swatch" id="btn-hl-yellow" style="background-color: #fef08a;">黄</button>
-                        <button class="marker-swatch" id="btn-hl-pink" style="background-color: #fecdd3;">桃</button>
-                        <button class="marker-swatch" id="btn-hl-blue" style="background-color: #bae6fd;">青</button>
-                    </div>
-                    <div class="toolbar-divider"></div>
-                    <div class="toolbar-group">
-                        <button class="tool-btn eraser" id="btn-eraser" title="選択範囲の書式をすべて消去">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 20H7L3 16C2.5 15.5 2.5 14.5 3 14L13 4C13.5 3.5 14.5 3.5 15 4L20 9C20.5 9.5 20.5 10.5 20 11L11 20H20Z"></path><line x1="17" y1="20" x2="20" y2="20"></line></svg>
-                        </button>
-                    </div>
-                </div>
-
-                <div class="output-wrapper">
-                    <div class="processing-overlay" id="processing-overlay">
-                        <div class="spinner"></div>
-                        <div id="loading-status-text" style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">AIが議事録を作成しています...</div>
-                    </div>
-
-                    <div id="output-text" contenteditable="true">
-                        <div class="placeholder-box" contenteditable="false">
-                            左側の「STEP 1」に文字起こしを入力し、「STEP 2」で抽出したい項目と情報量を選んで「議事録を作成する」を押してください。<br><br>
-                            生成されたテキストは、マウスで文字を選択して上のツールバーから自由に太字や色付けができます。<br>
-                            間違えたら「消しゴム」ボタンで元に戻せます。
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- STEP 4 -->
-            <section class="panel qa-container" id="panel-step4">
-                <div class="panel-header">
-                    <div class="panel-title-group">
-                        <span class="step-badge" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9);">STEP 4</span>
-                        <h2 class="panel-title">会議内容についてAIに質問</h2>
-                    </div>
-                </div>
-                <div class="panel-body">
-                    <div class="qa-content-wrapper">
-                        <div class="qa-input-row">
-                            <input type="text" id="qa-input" placeholder="例：決定事項を3行で教えて / 誰がどのタスクを担当する？">
-                            <button class="btn-sm btn-sm-accent" style="padding: 0 24px;" id="btn-search">質問する</button>
-                        </div>
-                        <div class="qa-answer-box" id="qa-answer"></div>
-
-                        <!-- AIに質問の下の空白エリアに配置するロボット -->
-                        <div class="qa-bot-stage">
-                            <div id="ai-bot" class="ai-bot" title="クリックすると反応します！">
-                                <div class="bot-tooltip" id="bot-tooltip">こんにちは！</div>
-                                <div class="bot-antenna"></div>
-                                <div class="bot-head">
-                                    <div class="bot-face">
-                                        <div class="bot-eyes">
-                                            <div class="bot-eye"></div>
-                                            <div class="bot-eye"></div>
-                                        </div>
-                                        <div class="bot-mouth"></div>
-                                        <div class="bot-blush left"></div>
-                                        <div class="bot-blush right"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="bot-floor-shadow"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </div>
-    </main>
-
-    <script type="module">
-        import { GoogleGenAI } from 'https://esm.run/@google/genai';
-
-        const STORAGE_KEY = 'gijiroku_hero_gemini_key';
-        const FALLBACK_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
-        let selectedVolume = 5;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedKey = localStorage.getItem(STORAGE_KEY);
-            if (savedKey) {
-                document.getElementById('api-key-input').value = savedKey;
-                updateKeyStatus(true);
-            } else {
-                updateKeyStatus(false);
-                document.getElementById('api-drawer').classList.add('open');
-            }
-
-            initVolumeBar();
-            initAIRobot();
-            
-            document.getElementById('api-toggle-btn').addEventListener('click', () => {
-                document.getElementById('api-drawer').classList.toggle('open');
-            });
-            document.getElementById('btn-save-key').addEventListener('click', saveApiKey);
-            document.getElementById('btn-clear-key').addEventListener('click', clearApiKey);
-            
-            const transcriptInput = document.getElementById('transcript-input');
-            transcriptInput.addEventListener('input', () => {
-                const len = transcriptInput.value.length;
-                document.getElementById('char-count').innerText = `${len.toLocaleString()} 文字`;
-            });
-            
-            document.getElementById('btn-clear-transcript').addEventListener('click', () => {
-                transcriptInput.value = '';
-                document.getElementById('char-count').innerText = '0 文字';
-            });
-            
-            document.getElementById('btn-check-all').addEventListener('click', () => toggleAllOptions(true));
-            document.getElementById('btn-uncheck-all').addEventListener('click', () => toggleAllOptions(false));
-            
-            document.querySelectorAll('#options-container input[type="checkbox"]').forEach(cb => {
-                cb.addEventListener('change', () => updateCheckboxVisual(cb));
-            });
-            
-            const customCheckbox = document.getElementById('opt-custom');
-            const customInput = document.getElementById('opt-custom-input');
-            customCheckbox.addEventListener('change', () => {
-                if (customCheckbox.checked) {
-                    customInput.disabled = false;
-                    customInput.focus();
-                } else {
-                    customInput.disabled = true;
-                }
-            });
-
-            document.getElementById('btn-generate').addEventListener('click', generateMinutes);
-            
-            document.getElementById('btn-copy').addEventListener('click', copyToClipboard);
-            document.getElementById('btn-download-toggle').addEventListener('click', (e) => {
-                e.stopPropagation();
-                document.getElementById('download-dropdown').classList.toggle('show');
-            });
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('#download-dropdown')) {
-                    document.getElementById('download-dropdown').classList.remove('show');
-                }
-            });
-            document.getElementById('btn-dl-txt').addEventListener('click', () => downloadFile('txt'));
-            document.getElementById('btn-dl-md').addEventListener('click', () => downloadFile('md'));
-
-            const bindFormat = (id, action) => {
-                const btn = document.getElementById(id);
-                btn.addEventListener('mousedown', e => e.preventDefault());
-                btn.addEventListener('click', action);
-            };
-            bindFormat('btn-fmt-bold', applyTextBold);
-            bindFormat('btn-color-black', () => applyTextColor('#0f172a'));
-            bindFormat('btn-color-red', () => applyTextColor('#dc2626'));
-            bindFormat('btn-color-blue', () => applyTextColor('#2563eb'));
-            bindFormat('btn-color-green', () => applyTextColor('#16a34a'));
-            bindFormat('btn-color-orange', () => applyTextColor('#d97706'));
-            bindFormat('btn-hl-yellow', () => applyHighlightColor('#fef08a'));
-            bindFormat('btn-hl-pink', () => applyHighlightColor('#fecdd3'));
-            bindFormat('btn-hl-blue', () => applyHighlightColor('#bae6fd'));
-            bindFormat('btn-eraser', clearFormatting);
-
-            document.getElementById('btn-search').addEventListener('click', askQuestion);
-            document.getElementById('qa-input').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && !e.isComposing) {
-                    e.preventDefault();
-                    askQuestion();
-                }
-            });
-            
-            setTimeout(() => {
-                showBotTooltip("こんにちは！ここにいるよ！");
-            }, 900);
-        });
-
-        function initAIRobot() {
-            const robot = document.getElementById('ai-bot');
-            let clickTimeout;
-
-            robot.addEventListener('click', () => {
-                robot.classList.add('happy');
-                const messages = [
-                    "がんばるよ！",
-                    "議事録のことならお任せ！",
-                    "気になることはある？",
-                    "ばっちりだよ！",
-                    "おつかれさま！"
-                ];
-                const msg = messages[Math.floor(Math.random() * messages.length)];
-                showBotTooltip(msg);
-                
-                clearTimeout(clickTimeout);
-                clickTimeout = setTimeout(() => {
-                    robot.classList.remove('happy');
-                }, 2000);
-            });
-        }
-        
-        function showBotTooltip(message, duration = 3000) {
-            const tooltip = document.getElementById('bot-tooltip');
-            tooltip.innerText = message;
-            tooltip.classList.add('show');
-            
-            if (window.botTooltipTimer) {
-                clearTimeout(window.botTooltipTimer);
-            }
-            
-            window.botTooltipTimer = setTimeout(() => {
-                tooltip.classList.remove('show');
-            }, duration);
-        }
-
-        function updateCheckboxVisual(cb) {
-            const checkBox = cb.nextElementSibling.querySelector('.chip-check');
-            if (cb.checked) {
-                checkBox.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
-            } else {
-                checkBox.innerHTML = '';
-            }
-        }
-
-        function toggleAllOptions(selectAll) {
-            document.querySelectorAll('#options-container input[type="checkbox"]').forEach(cb => {
-                cb.checked = selectAll;
-                updateCheckboxVisual(cb);
-                
-                if (cb.id === 'opt-custom') {
-                    const customInput = document.getElementById('opt-custom-input');
-                    customInput.disabled = !selectAll;
-                    if (selectAll) customInput.focus();
-                }
-            });
-        }
-
-        function initVolumeBar() {
-            let isDraggingVolume = false;
-            const segments = document.querySelectorAll('.volume-segment');
-            segments.forEach(seg => {
-                seg.addEventListener('mousedown', () => {
-                    isDraggingVolume = true;
-                    setVolumeLevel(parseInt(seg.dataset.val, 10));
-                });
-                seg.addEventListener('mouseenter', () => {
-                    if (isDraggingVolume) setVolumeLevel(parseInt(seg.dataset.val, 10));
-                });
-                seg.addEventListener('click', () => setVolumeLevel(parseInt(seg.dataset.val, 10)));
-            });
-            window.addEventListener('mouseup', () => isDraggingVolume = false);
-        }
-
-        function setVolumeLevel(level) {
-            selectedVolume = level;
-            document.querySelectorAll('.volume-segment').forEach(seg => {
-                const val = parseInt(seg.dataset.val, 10);
-                if (val <= level) seg.classList.add('active');
-                else seg.classList.remove('active');
-            });
-            const descriptions = {
-                1: '超簡潔', 2: 'かなり簡潔', 3: '簡潔', 4: 'やや簡潔', 5: '標準',
-                6: 'やや詳細', 7: '詳細', 8: 'かなり詳細', 9: 'ほぼ網羅', 10: '完全網羅'
-            };
-            document.getElementById('volume-label').innerText = `レベル ${level} / 10（${descriptions[level]}）`;
-        }
-
-        function updateKeyStatus(isSaved) {
-            const dot = document.getElementById('api-status-dot');
-            const label = document.getElementById('api-status-label');
-            if (isSaved) {
-                dot.classList.add('connected');
-                label.innerText = 'API接続済み';
-            } else {
-                dot.classList.remove('connected');
-                label.innerText = 'APIキー未設定';
-            }
-        }
-
-        function saveApiKey() {
-            const key = document.getElementById('api-key-input').value.trim();
-            if (!key) return showToast("APIキーを入力してください。");
-            localStorage.setItem(STORAGE_KEY, key);
-            updateKeyStatus(true);
-            document.getElementById('api-drawer').classList.remove('open');
-            showToast("APIキーを保存しました！");
-            
-            const bot = document.getElementById('ai-bot');
-            bot.classList.add('happy');
-            showBotTooltip("APIキー設定OKだよ！");
-            setTimeout(() => bot.classList.remove('happy'), 2000);
-        }
-
-        function clearApiKey() {
-            localStorage.removeItem(STORAGE_KEY);
-            document.getElementById('api-key-input').value = '';
-            updateKeyStatus(false);
-            showToast("APIキーを削除しました。");
-        }
-
-        function getApiKey() {
-            const inputKey = document.getElementById('api-key-input').value.trim();
-            if (inputKey) return inputKey;
-            return localStorage.getItem(STORAGE_KEY) || '';
-        }
-
-        function showToast(message) {
-            const toast = document.getElementById("toast-container");
-            toast.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg> ${message}`;
-            toast.classList.add("show");
-            setTimeout(() => toast.classList.remove("show"), 3000);
-        }
-
-        function hasValidOutputSelection() {
-            const outputEl = document.getElementById('output-text');
-            if (outputEl.querySelector('.placeholder-box')) {
-                showToast("先に議事録を作成してください。");
-                return false;
-            }
-            const sel = window.getSelection();
-            if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
-                showToast("装飾したい文字をドラッグして選択してください。");
-                return false;
-            }
-            const range = sel.getRangeAt(0);
-            if (!outputEl.contains(range.commonAncestorContainer)) {
-                showToast("生成結果エリア内の文字を選択してください。");
-                return false;
-            }
-            return true;
-        }
-
-        function applyTextBold() {
-            if (!hasValidOutputSelection()) return;
-            document.execCommand('bold', false, null);
-        }
-        function applyTextColor(color) {
-            if (!hasValidOutputSelection()) return;
-            document.execCommand('styleWithCSS', false, true);
-            document.execCommand('foreColor', false, color);
-        }
-        function applyHighlightColor(bgColor) {
-            if (!hasValidOutputSelection()) return;
-            document.execCommand('styleWithCSS', false, true);
-            document.execCommand('hiliteColor', false, bgColor);
-        }
-        function clearFormatting() {
-            if (!hasValidOutputSelection()) return;
-            document.execCommand('removeFormat', false, null);
-            document.execCommand('styleWithCSS', false, true);
-            document.execCommand('hiliteColor', false, 'transparent');
-            document.execCommand('foreColor', false, 'inherit');
-            showToast("選択範囲の書式を消去しました！");
-        }
-
-        async function copyToClipboard() {
-            const outputEl = document.getElementById('output-text');
-            if (outputEl.querySelector('.placeholder-box') || !outputEl.innerText.trim()) {
-                return showToast("コピーする議事録がありません。");
-            }
-
-            const htmlContent = `<div style="font-family: sans-serif; line-height: 1.7; white-space: pre-wrap;">${outputEl.innerHTML}</div>`;
-            const plainText = outputEl.innerText;
-            try {
-                if (navigator.clipboard && window.ClipboardItem) {
-                    const clipboardItem = new ClipboardItem({
-                        'text/html': new Blob([htmlContent], { type: 'text/html' }),
-                        'text/plain': new Blob([plainText], { type: 'text/plain' })
-                    });
-                    await navigator.clipboard.write([clipboardItem]);
-                    showToast("書式付きでコピーしました！");
-                    showBotTooltip("コピー完了だよ！");
-                    return;
-                }
-            } catch (e) {}
-
-            try {
-                const range = document.createRange();
-                range.selectNodeContents(outputEl);
-                const sel = window.getSelection();
-                sel.removeAllRanges();
-                sel.addRange(range);
-                document.execCommand('copy');
-                sel.removeAllRanges();
-                showToast("書式付きでコピーしました！");
-                showBotTooltip("コピー完了だよ！");
-            } catch (err) {
-                showToast("コピーに失敗しました。手動で選択してください。");
-            }
-        }
-        
-        function downloadFile(format) {
-            document.getElementById('download-dropdown').classList.remove('show');
-            const outputEl = document.getElementById('output-text');
-            if (outputEl.querySelector('.placeholder-box') || !outputEl.innerText.trim()) {
-                return showToast("ダウンロードする議事録がありません。");
-            }
-
-            let content = "", mimeType = "", fileExt = "";
-            if (format === 'txt') {
-                content = outputEl.innerText;
-                mimeType = "text/plain;charset=utf-8";
-                fileExt = "txt";
-            } else if (format === 'md') {
-                let mdText = outputEl.innerText;
-                mdText = mdText.replace(/^■\s*(.*)$/gm, '## $1');
-                content = mdText;
-                mimeType = "text/markdown;charset=utf-8";
-                fileExt = "md";
-            }
-            
-            const now = new Date();
-            const dateStr = `${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
-            const fileName = `議事録_${dateStr}.${fileExt}`;
-            
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-            
-            showToast(`${fileName} を保存しました！`);
-            showBotTooltip("ファイルを保存したよ！");
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
-
-        function renderFormattedOutput(rawText, highlightMode) {
-            const escaped = escapeHtml(rawText);
-            if (highlightMode === 'none') return escaped.replace(/\*\*(.+?)\*\*/g, '$1');
-
-            const styleMap = {
-                bold: 'font-weight: 800;',
-                red: 'font-weight: 800; color: #dc2626;',
-                blue: 'font-weight: 800; color: #2563eb;',
-                marker: 'font-weight: 800; background-color: #fef08a; padding: 0 4px; border-radius: 4px;'
-            };
-            const appliedStyle = styleMap[highlightMode] || styleMap.bold;
-            return escaped.replace(/\*\*(.+?)\*\*/g, `<span style="${appliedStyle}">$1</span>`);
-        }
-
-        async function callGeminiWithFallback(apiKey, prompt, onRetryCallback) {
-            const ai = new GoogleGenAI({ apiKey: apiKey });
-            let lastError = null;
-
-            for (let i = 0; i < FALLBACK_MODELS.length; i++) {
-                const modelName = FALLBACK_MODELS[i];
-                try {
-                    const response = await ai.models.generateContent({ model: modelName, contents: prompt });
-                    return response.text;
-                } catch (error) {
-                    lastError = error;
-                    const errMsg = error.message || '';
-                    if (errMsg.includes('503') || errMsg.includes('UNAVAILABLE') || errMsg.includes('overloaded')) {
-                        if (i < FALLBACK_MODELS.length - 1) {
-                            if (onRetryCallback) onRetryCallback();
-                            await new Promise(r => setTimeout(r, 1000));
-                            continue;
-                        }
-                    }
-                    throw error;
-                }
-            }
-            throw lastError;
-        }
-
-        function formatFriendlyError(error) {
-            const msg = error.message || '';
-            if (msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED')) {
-                return `<div style="color: #b45309; background: #fef3c7; padding:16px; border-radius:8px; border:1px solid #fcd34d;"><b>⚠️ 無料枠の上限に達しました</b><br>1分間の利用回数制限です。60秒ほど待ってから再度お試しください。</div>`;
-            }
-            if (msg.includes('503') || msg.includes('UNAVAILABLE')) {
-                return `<div style="color: #b45309; background: #fef3c7; padding:16px; border-radius:8px; border:1px solid #fcd34d;"><b>⚠️ サーバーが混雑しています</b><br>1〜2分置いてから再度お試しください。</div>`;
-            }
-            if (msg.includes('400') || msg.includes('403') || msg.includes('API_KEY_INVALID')) {
-                return `<div style="color: #b91c1c; background: #fee2e2; padding:16px; border-radius:8px; border:1px solid #fca5a5;"><b>⚠️ APIキーエラー</b><br>画面右上の「APIキー設定」から正しいキーを設定してください。</div>`;
-            }
-            return `<div style="color: #b91c1c; background: #fee2e2; padding:16px; border-radius:8px; border:1px solid #fca5a5;"><b>⚠️ エラーが発生しました</b><br><small>${escapeHtml(msg)}</small></div>`;
-        }
-
-        async function generateMinutes() {
-            const apiKey = getApiKey();
-            if (!apiKey) {
-                document.getElementById('api-drawer').classList.add('open');
-                document.getElementById('api-key-input').focus();
-                return showToast("先にGemini APIキーを設定してください。");
-            }
-
-            const transcript = document.getElementById('transcript-input').value.trim();
-            if (!transcript) return showToast("会議の内容を入力してください。");
-
-            const checkboxes = document.querySelectorAll('#options-container input[type="checkbox"]:checked');
-            if (checkboxes.length === 0) return showToast("抽出する項目を選択してください。");
-
-            const selectedItems = [];
-            let hasCustomItem = false;
-            let customItemText = "";
-            
-            checkboxes.forEach(cb => {
-                if (cb.id === 'opt-custom') {
-                    hasCustomItem = true;
-                    customItemText = document.getElementById('opt-custom-input').value.trim();
-                } else {
-                    selectedItems.push(cb.value);
-                }
-            });
-            
-            if (hasCustomItem && !customItemText) {
-                document.getElementById('opt-custom-input').focus();
-                return showToast("「その他」の項目名を入力してください。");
-            }
-            
-            if (hasCustomItem && customItemText) {
-                selectedItems.push(customItemText);
-            }
-
-            const highlightMode = document.querySelector('input[name="ai-highlight"]:checked')?.value || 'none';
-
-            const highlightInstruction = highlightMode === 'none'
-                ? '強調のための「**」などのMarkdown記号は一切使用しないでください。'
-                : '重要な結論、数値、期限、担当者などのキーワードのみを「**重要語句**」のようにアスタリスク2つで囲んで強調してください。見出し全体は囲まないでください。';
-
-            const prompt = `あなたは優秀なビジネス書記です。以下の【会議の文字起こし】をもとに、指定された条件で読みやすく構造化された議事録を作成してください。
-【出力項目】
-${selectedItems.map(item => `■ ${item}`).join('\n')}
-【情報量のレベル】10段階中「${selectedVolume}」
-【出力ルール】
-・文字起こしに記載がない項目は「記載なし」とする。
-・タスクは「内容」「担当者」「期限」を明記する。
-・${highlightInstruction}
-・前置きは不要。本文のみ出力。
-【会議の文字起こし】
-${transcript}`;
-
-            const overlay = document.getElementById('processing-overlay');
-            const statusText = document.getElementById('loading-status-text');
-            const generateBtn = document.getElementById('btn-generate');
-            const outputEl = document.getElementById('output-text');
-            const bot = document.getElementById('ai-bot');
-
-            overlay.style.display = 'flex';
-            generateBtn.disabled = true;
-            bot.classList.add('thinking');
-            showBotTooltip("えーっと、まとめるね...", 4000);
-
-            try {
-                const resultText = await callGeminiWithFallback(apiKey, prompt, () => {
-                    statusText.innerText = '予備モデルで再試行中...';
-                });
-                outputEl.innerHTML = renderFormattedOutput(resultText.trim(), highlightMode);
-                showToast("議事録が完成しました！");
-                bot.classList.remove('thinking');
-                bot.classList.add('happy');
-                showBotTooltip("議事録できたよ！", 3000);
-                setTimeout(() => bot.classList.remove('happy'), 3000);
-            } catch (error) {
-                outputEl.innerHTML = formatFriendlyError(error);
-                bot.classList.remove('thinking');
-                showBotTooltip("うーん、エラーになっちゃった", 3000);
-            } finally {
-                overlay.style.display = 'none';
-                generateBtn.disabled = false;
-                statusText.innerText = 'AIが議事録を作成しています...';
-            }
-        }
-
-        async function askQuestion() {
-            const apiKey = getApiKey();
-            if (!apiKey) {
-                document.getElementById('api-drawer').classList.add('open');
-                return showToast("先にGemini APIキーを設定してください。");
-            }
-
-            const transcript = document.getElementById('transcript-input').value.trim();
-            const outputEl = document.getElementById('output-text');
-            const generatedMinutes = outputEl.querySelector('.placeholder-box') ? '' : outputEl.innerText.trim();
-
-            if (!transcript && !generatedMinutes) return showToast("「STEP 1」に会議の内容を入力してください。");
-
-            const question = document.getElementById('qa-input').value.trim();
-            if (!question) return showToast("質問内容を入力してください。");
-
-            const searchBtn = document.getElementById('btn-search');
-            const answerBox = document.getElementById('qa-answer');
-            const bot = document.getElementById('ai-bot');
-
-            searchBtn.disabled = true;
-            searchBtn.innerText = '考え中...';
-            answerBox.style.display = 'block';
-            answerBox.innerHTML = `<span class="qa-answer-label">AIアシスタント</span>回答を生成しています...`;
-            bot.classList.add('thinking');
-            showBotTooltip("んー、えーっとね...", 3000);
-
-            const prompt = `以下の【会議の内容】をもとに、【質問】に対して正確かつ簡潔に日本語で回答してください。
-内容にない事柄は推測せず「確認できませんでした」と回答してください。
-【会議の内容】
-${transcript || generatedMinutes}
-【質問】
-${question}`;
-
-            try {
-                const answerText = await callGeminiWithFallback(apiKey, prompt);
-                answerBox.innerHTML = `<span class="qa-answer-label">AIからの回答</span>${escapeHtml(answerText.trim())}`;
-                bot.classList.remove('thinking');
-                bot.classList.add('happy');
-                showBotTooltip("わかったよ！", 2000);
-                setTimeout(() => bot.classList.remove('happy'), 2000);
-            } catch (error) {
-                answerBox.innerHTML = formatFriendlyError(error);
-                bot.classList.remove('thinking');
-            } finally {
-                searchBtn.disabled = false;
-                searchBtn.innerText = '質問する';
-            }
-        }
-    </script>
-</body>
-</html>
+        .setting-label { font-size: 0.9rem; font-weight: 700; color: var
