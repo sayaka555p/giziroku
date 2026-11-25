@@ -1221,7 +1221,7 @@
         const STORAGE_KEY = 'gijiroku_hero_gemini_key';
         const AUTOSAVE_KEY = 'gijiroku_hero_autosave_v1';
         const HISTORY_KEY = 'gijiroku_hero_history_v1';
-        const FALLBACK_MODELS = ['gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+        const FALLBACK_MODELS = ['gemini-3.5-flash-lite', 'gemini-3.8-flash'];
         let selectedVolume = 5;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -1894,7 +1894,7 @@
                 } catch (error) {
                     lastError = error;
                     const errMsg = error.message || '';
-                    if (errMsg.includes('503') || errMsg.includes('UNAVAILABLE') || errMsg.includes('overloaded')) {
+                    if (errMsg.includes('503') || errMsg.includes('404') || errMsg.includes('NOT_FOUND') || errMsg.includes('UNAVAILABLE') || errMsg.includes('overloaded')) {
                         if (i < FALLBACK_MODELS.length - 1) {
                             if (onRetryCallback) onRetryCallback();
                             await new Promise(r => setTimeout(r, 1000));
