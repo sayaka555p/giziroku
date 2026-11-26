@@ -1062,6 +1062,7 @@
                         <span id="char-count">0 文字</span>
                         <button class="btn-sm" id="btn-import-file" title=".txt / .vtt / .srt ファイルを読み込み">ファイル読込</button>
                         <button class="link-btn" id="btn-clear-transcript">クリア</button>
+                        <button type="button" id="btn-sample-data" class="btn-sub">サンプル入力</button>
                     </div>
                 </div>
                 <div class="panel-body">
@@ -1086,6 +1087,12 @@
                 <div class="panel-body">
                     <div class="setting-block">
                         <div class="setting-label-row">
+                            <div class="preset-bar" style="margin-bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+  <span style="font-size: 0.85rem; color: #666; align-self: center;">プリセット：</span>
+  <button type="button" class="preset-btn" data-preset="regular">定例会議（簡潔）</button>
+  <button type="button" class="preset-btn" data-preset="client">商談・社外向け</button>
+  <button type="button" class="preset-btn" data-preset="brainstorm">ブレスト・アイデア出し</button>
+</div>
                             <span class="setting-label">1. 抽出する項目</span>
                             <div class="meta-actions">
                                 <button class="link-btn" id="btn-check-all">全選択</button>
@@ -1200,6 +1207,8 @@
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                             <span>コピー</span>
                         </button>
+                        <button type="button" id="btn-copy-rich">書式付きコピー</button>
+<button type="button" id="btn-copy-slack">Slack用コピー</button>
 
                         <div class="dropdown-menu" id="download-dropdown">
                             <button class="btn-sm" id="btn-download-toggle">
